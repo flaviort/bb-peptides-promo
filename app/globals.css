@@ -139,6 +139,8 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
   transform: translateY(-100%); transition: transform 0.9s var(--ease-out-3) 0.3s;
 }
 .nav.is-in { transform: none; }
+.nav::before { content: ""; position: absolute; inset: 0; z-index: -1; background: rgb(17 17 17 / 0.94); border-bottom: 1px solid var(--hair); opacity: 0; transition: opacity 0.4s var(--ease-out-3); }
+.nav.is-solid::before { opacity: 1; }
 .nav > * { pointer-events: auto; }
 .nav-logo { justify-self: center; display: block; width: clamp(132px, 14vw, 200px); }
 .nav-logo img { display: block; width: 100%; height: auto; }
@@ -325,6 +327,7 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 .acc > li { border-bottom: 1px solid var(--hair); }
 .acc-button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 0; text-align: left; font-size: clamp(18px, 2vw, 22px); font-weight: 500; }
 .acc-icon { width: 20px; height: 20px; flex: none; transition: transform 0.5s var(--ease-out-3); }
+.acc-icon svg { display: block; width: 100%; height: 100%; }
 .acc-button[aria-expanded="true"] .acc-icon { transform: rotate(45deg); }
 .acc-panel { transition: grid-template-rows var(--acc-ms) var(--ease-out-3), visibility 0s linear var(--acc-delay); }
 .acc-answer { max-width: 70ch; padding: 0 40px 24px 0; font-size: 16px; line-height: 1.625; color: rgb(255 255 255 / 0.78); }

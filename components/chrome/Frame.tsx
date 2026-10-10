@@ -1,7 +1,7 @@
 'use client';
 
 import { PRODUCT_COUNT, pad2 } from '@/lib/products';
-import { LAST_PRODUCT } from '@/lib/scroll/sections';
+import { CLOSING, LAST_PRODUCT } from '@/lib/scroll/sections';
 import { useApp } from '@/lib/store';
 import { cn } from '@/lib/cn';
 
@@ -12,7 +12,7 @@ export function Frame() {
   const product = useApp((s) => s.product);
   return (
     <>
-      <div className={cn('frame', entered && 'is-in')} aria-hidden="true">
+      <div className={cn('frame', entered && section !== CLOSING && 'is-in')} aria-hidden="true">
         <span className="frame-corner tl" />
         <span className="frame-corner tr" />
         <span className="frame-corner bl" />
