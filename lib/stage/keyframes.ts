@@ -16,7 +16,7 @@ const WALK: Patch = {
 function desktop(id: SectionId): Patch {
   if (id === 'hero') return {};
   if (id === 'range') {
-    return { camY: 0, camZ: 19, row: 1, rigY: 1, stageLight: 0, key: 1.5, rim: 1.8, fogNear: 26, fogFar: 52, walk: PRODUCT_COUNT };
+    return { camY: 0, camZ: 23, row: 1, rigY: 1, stageLight: 0, key: 1.5, rim: 1.8, fogNear: 26, fogFar: 52, walk: PRODUCT_COUNT };
   }
   if (id === 'closing') {
     // The camera drops and pushes in so the row rises out of frame while the page reads on.

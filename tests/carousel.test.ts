@@ -89,3 +89,13 @@ describe('reduced motion', () => {
     expect(Math.abs(center.group.rotation.y + 0.14)).toBeLessThan(0.01);
   });
 });
+
+describe('range row', () => {
+  it('lines the vials up in walk order, centered, whatever the hero showed', () => {
+    const { c, models } = setup(false, 7);
+    for (let k = 0; k < 120; k++) c.update(1 / 60, { ...DEFAULT_VALUES, row: 1, walk: 12 }, { mx: 0, my: 0 });
+    const xs = models.map((m) => m.group.position.x);
+    for (let i = 1; i < N; i++) expect(xs[i]).toBeGreaterThan(xs[i - 1]);
+    expect(xs[0] + xs[N - 1]).toBeCloseTo(0, 5);
+  });
+});

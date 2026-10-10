@@ -68,7 +68,8 @@ export class Carousel {
 
     for (let i = 0; i < n; i++) {
       const o = wrapOffset(i, this.pos, n);
-      let pose: Pose = blendPose(carouselPose(o, v), rowPose(o, v.spread), v.row);
+      // The range row always reads 01 to 12 left to right, centered, whichever vial the hero had in front.
+      let pose: Pose = blendPose(carouselPose(o, v), rowPose(i - (n - 1) / 2, v.spread), v.row);
       // Idle wobble keeps each label mostly facing front instead of spinning away. The row holds still.
       if (!reduced) pose.ry += Math.sin(this.time * 0.4 + i * 1.7) * 0.5 * (1 - v.row);
       let scale = 1;

@@ -3,6 +3,7 @@ import { Experience } from '@/components/Experience';
 import { Frame } from '@/components/chrome/Frame';
 import { HeroLayer } from '@/components/sections/HeroLayer';
 import { ProductLayer } from '@/components/sections/ProductLayer';
+import { RangeLayer } from '@/components/sections/RangeLayer';
 import { MainShell } from '@/components/chrome/MainShell';
 import { Nav } from '@/components/chrome/Nav';
 import { Preloader } from '@/components/sections/Preloader';
@@ -15,6 +16,7 @@ export default function Page() {
       <Experience />
       <HeroLayer />
       <ProductLayer />
+      <RangeLayer />
       <Frame />
       <Nav />
       <MainShell>
