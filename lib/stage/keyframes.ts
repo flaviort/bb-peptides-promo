@@ -29,7 +29,7 @@ function desktop(id: SectionId): Patch {
 function mobile(id: SectionId, f: SceneValues) {
   if (id === 'hero') Object.assign(f, { camZ: 14, camY: -0.6, fogNear: 18, fogFar: 30 });
   else if (id === 'closing') f.camY = -9;
-  else if (id !== 'range') Object.assign(f, { camZ: 8.6, focusX: 0, focusY: 0.95 });
+  else if (id !== 'range') Object.assign(f, { camZ: 12, focusX: 0, focusY: 1.7 });
 }
 
 export function buildKeyframes(isMobile: boolean): SceneValues[] {
