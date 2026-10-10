@@ -697,7 +697,7 @@ import { ASSESSMENT_URL, CATEGORIES, PRODUCTS, PRODUCT_COUNT, pad2, productUrl, 
 
 // Same rules as slugify() in ../bodybuilding-peptides/src/utils-peptides/functions.ts, which builds the live URLs.
 const slugify = (s: string) =>
-  s.normalize('NFKD').replace(/[̀-ͯ]/g, '').trim().toLowerCase()
+  s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase()
     .replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
 
 describe('products', () => {
@@ -725,7 +725,7 @@ describe('products', () => {
       expect(p.focus).toHaveLength(3);
       for (const s of [p.name, p.short, p.strength, p.vial, p.about, ...p.focus]) {
         expect(s.trim().length).toBeGreaterThan(0);
-        expect(s).not.toMatch(/[—–]/);
+        expect(s).not.toMatch(/[\u2014\u2013]/);
       }
       expect(p.about.length).toBeLessThan(200);
       expect(CATEGORIES[p.category]).toBeDefined();
@@ -3601,7 +3601,7 @@ it('has no em or en dashes anywhere', () => {
     ...HOW_IT_WORKS.flatMap((s) => [s.title, s.body]),
     ...FOOTER_LINKS.map((l) => l.label),
   ];
-  for (const s of all) expect(s).not.toMatch(/[—–]/);
+  for (const s of all) expect(s).not.toMatch(/[\u2014\u2013]/);
 });
 
 it('links only to trybbpeptides.com and ships every social icon', () => {
