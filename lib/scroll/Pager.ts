@@ -1,8 +1,7 @@
 import Lenis from 'lenis';
-import { planPage, sectionAt, zoneFor } from './math';
-import { pageDuration } from './sections';
+import { planPage, resnap, sectionAt, zoneFor } from './math';
+import { RANGE, easeInOutSine, pageDuration, pageEase } from './sections';
 
-const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 export interface PagerOptions {
   paging: boolean;
@@ -29,6 +28,7 @@ export class Pager {
     });
     this.lenis.on('scroll', this.onScroll);
     addEventListener('touchend', this.resetSwipe, { passive: true });
+    addEventListener('keydown', this.onKey);
   }
 
   get sectionTops(): readonly number[] {
@@ -36,8 +36,18 @@ export class Pager {
   }
 
   measure() {
+    const oldTops = this.tops;
     this.tops = Array.from(document.querySelectorAll<HTMLElement>('[data-section]'), (el) => el.offsetTop);
     this.vh = innerHeight;
+    if (oldTops.length !== this.tops.length || oldTops.every((t, i) => t === this.tops[i])) return;
+    // A resize moved every section top: restart a page move toward its new target, or re-snap the
+    // resting scroll, so the walk never parks between two products.
+    if (this.locked) {
+      this.animateTo(this.current, this.tops[this.current]);
+      return;
+    }
+    const to = resnap(this.lenis.scroll, oldTops, this.tops);
+    if (Math.abs(to - this.lenis.scroll) > 1) this.lenis.scrollTo(to, { immediate: true, force: true });
   }
 
   raf(ms: number) {
@@ -73,6 +83,7 @@ export class Pager {
 
   destroy() {
     removeEventListener('touchend', this.resetSwipe);
+    removeEventListener('keydown', this.onKey);
     this.lenis.destroy();
   }
 
@@ -115,7 +126,7 @@ export class Pager {
     this.opts.onSection(to);
     this.lenis.scrollTo(scroll, {
       duration: pageDuration(from, to),
-      easing: easeOutCubic,
+      easing: pageEase(from, to),
       lock: true,
       force: true,
       onComplete: () => {
@@ -129,8 +140,45 @@ export class Pager {
   }
 
   scrollToElement(el: HTMLElement) {
-    this.lenis.scrollTo(el, { offset: -96, duration: 1.6, force: true });
+    // This scroll replaces any page move in flight, whose onComplete then never runs: release its lock
+    // here, or paging and every queued jump stay wedged for the rest of the visit.
+    this.locked = false;
+    this.queued = null;
+    // From inside the paged zone the scroll passes every remaining product spin, so it keeps the jump pace.
+    const paged = this.current < RANGE;
+    this.lenis.scrollTo(el, {
+      offset: -96,
+      duration: paged ? Math.max(1.6, pageDuration(this.current, RANGE)) : 1.6,
+      easing: easeInOutSine,
+      force: true,
+      onComplete: () => {
+        this.unlockedAt = performance.now();
+        this.onScroll();
+      },
+    });
   }
+
+  // Page, Space, arrow, Home and End keys page like the wheel does instead of scrolling part-way into a section.
+  private onKey = (e: KeyboardEvent) => {
+    if (!this.opts.paging || !this.tops.length || this.lenis.isStopped) return;
+    if (e.defaultPrevented || e.altKey || e.metaKey || e.ctrlKey) return;
+    const target = e.target instanceof Element ? e.target : null;
+    if (target?.closest('input, textarea, select, [contenteditable], [role="dialog"]')) return;
+    if (e.key === ' ' && target?.closest('a, button')) return;
+    const steps: Record<string, 1 | -1> = { PageDown: 1, ArrowDown: 1, PageUp: -1, ArrowUp: -1, ' ': e.shiftKey ? -1 : 1 };
+    const dir: 1 | -1 | undefined = e.key === 'Home' ? -1 : e.key === 'End' ? 1 : steps[e.key];
+    if (!dir) return;
+    if (zoneFor(this.lenis.scroll, this.vh, this.tops, dir) === 'free') return;
+    e.preventDefault();
+    if (this.locked) return;
+    if (e.key === 'Home' || e.key === 'End') {
+      const to = e.key === 'Home' ? 0 : RANGE;
+      if (to !== this.current) this.animateTo(to, this.tops[to]);
+      return;
+    }
+    const plan = planPage(this.lenis.scroll, this.vh, this.tops, dir);
+    if (plan) this.animateTo(plan.to, plan.scroll);
+  };
 
   private onScroll = () => {
     if (this.locked || !this.tops.length) return;

@@ -5,6 +5,7 @@ import { store } from './store';
 import { createProgress } from './progress';
 import { readDebug } from './debug';
 import { withTimeout } from './timeout';
+import { isTap, type Point } from './tap';
 import { Pager } from './scroll/Pager';
 import { CLOSING, RANGE, SECTIONS, productForSection, sectionForProduct, type SectionId } from './scroll/sections';
 import { setPager } from './scroll/instance';
@@ -51,19 +52,30 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
   });
   void document.fonts.ready.then(() => progress.update('fonts', 1));
 
-  // Every step races the timeout: a stalled chunk or label build drops to the static path instead of hanging.
+  // One deadline for the whole 3D path: a stalled font, chunk or label build drops to the static path
+  // instead of hanging, and a stage that finishes after the deadline is thrown away.
   let stage: Stage | null = null;
   if (hasWebGL()) {
     let s: Stage | null = null;
-    try {
-      const font = await withTimeout(labelFont(), LOAD_TIMEOUT);
-      const { Stage } = await withTimeout(import('./stage/Stage'), LOAD_TIMEOUT);
+    let late = false;
+    const build = async () => {
+      const font = await labelFont();
+      const { Stage } = await import('./stage/Stage');
+      if (late) throw new Error('timeout');
       s = new Stage({ canvas, quality, labelFont: font, background: INK, reduced, onProgress: (f) => progress.update('models', f) });
-      await withTimeout(s.load(), LOAD_TIMEOUT);
-      stage = s;
+      await s.load();
+      if (late) {
+        s.dispose();
+        throw new Error('timeout');
+      }
+      return s;
+    };
+    try {
+      stage = await withTimeout(build(), LOAD_TIMEOUT);
       stage.setProduct(store.get().product);
     } catch {
-      s?.dispose();
+      late = true;
+      (s as Stage | null)?.dispose();
       store.set({ webgl: false });
     }
   } else {
@@ -139,10 +151,11 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
     let moved = 0;
     const canDrag = () => store.get().entered && store.get().section === 0;
     const inRange = () => store.get().entered && store.get().section === RANGE;
+    // Range row: open a product on release, and only for a tap, so a swipe that starts on a vial scrolls.
+    let rangeDown: Point | null = null;
     const down = (e: PointerEvent) => {
       if (inRange()) {
-        const hit = st.hitProduct(e.clientX, e.clientY);
-        if (hit !== null) window.open(productUrl(PRODUCTS[hit]), '_blank', 'noreferrer');
+        rangeDown = { x: e.clientX, y: e.clientY };
         return;
       }
       if (!canDrag()) return;
@@ -172,6 +185,13 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
       canvas.style.cursor = canDrag() ? (st.hitCenter(e.clientX, e.clientY) ? 'pointer' : 'grab') : '';
     };
     const up = (e: PointerEvent) => {
+      if (rangeDown) {
+        const tap = e.type === 'pointerup' && inRange() && isTap(rangeDown, { x: e.clientX, y: e.clientY });
+        rangeDown = null;
+        const hit = tap ? st.hitProduct(e.clientX, e.clientY) : null;
+        if (hit !== null) window.open(productUrl(PRODUCTS[hit]), '_blank', 'noreferrer');
+        return;
+      }
       if (!dragging) return;
       dragging = false;
       document.body.classList.remove('is-grabbing');

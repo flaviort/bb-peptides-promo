@@ -49,3 +49,14 @@ export function planPage(scroll: number, _vh: number, tops: readonly number[], d
   const to = Math.min(LAST, Math.max(0, current + dir));
   return { to, scroll: tops[to] };
 }
+
+// Where to scroll after a resize moved every section top. In the paged zone the page snaps to the
+// nearest section, so the walk never parks between products; further down it keeps its relative spot.
+export function resnap(scroll: number, oldTops: readonly number[], newTops: readonly number[]): number {
+  const last = oldTops.length - 1;
+  if (scroll >= oldTops[last]) return newTops[last] + (scroll - oldTops[last]);
+  const t = scrollToTime(scroll, oldTops);
+  if (t < RANGE) return newTops[Math.round(t)];
+  const i = Math.floor(t);
+  return newTops[i] + (t - i) * (newTops[i + 1] - newTops[i]);
+}

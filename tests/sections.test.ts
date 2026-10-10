@@ -28,6 +28,7 @@ it('pages slowly into and out of the walk, quickly between products, longer for 
   expect(pageDuration(1, 0)).toBe(1.4);
   expect(pageDuration(12, 13)).toBe(1.4);
   expect(pageDuration(2, 3)).toBe(0.9);
-  expect(pageDuration(2, 9)).toBeCloseTo(1.8);
-  expect(pageDuration(0, 12)).toBe(2.4);
+  // Jumps get at least 0.28s per product so the spins stay readable.
+  expect(pageDuration(2, 9)).toBeCloseTo(1.96);
+  expect(pageDuration(0, 12)).toBeCloseTo(3.36);
 });

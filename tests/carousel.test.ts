@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { Carousel } from '@/lib/stage/Carousel';
 import type { ProductModel } from '@/lib/stage/ProductModel';
 import { DEFAULT_VALUES, type SceneValues } from '@/lib/stage/values';
+import { pageDuration, pageEase } from '@/lib/scroll/sections';
 
 class FakeModel implements ProductModel {
   readonly group = new THREE.Group();
@@ -110,4 +111,27 @@ describe('hero ring', () => {
     expect(scale(2)).toBeLessThan(scale(1));
     expect(scale(11)).toBeCloseTo(scale(1));
   });
+});
+
+describe('paged jumps at 30fps (the mobile floor)', () => {
+  // Section s sits at walk s - 1: hero -1, p01 0, ..., p12 11, range 12.
+  const jump = (c: Carousel, from: number, to: number) => {
+    const d = pageDuration(from, to);
+    const ease = pageEase(from, to);
+    const frames = Math.ceil(d * 30);
+    for (let k = 0; k <= frames; k++) {
+      const s = from + (to - from) * ease(k / frames);
+      c.update(1 / 30, valuesAt(s - 1), { mx: 0, my: 0 });
+    }
+  };
+  for (const [from, to] of [[2, 11], [0, 11], [11, 2], [0, 13], [1, 2]]) {
+    it(`never swaps a label facing the camera, section ${from} to ${to}`, () => {
+      const { c, center } = setup(false);
+      c.update(1 / 30, valuesAt(from - 1), { mx: 0, my: 0 });
+      center.swaps = [];
+      jump(c, from, to);
+      for (const s of center.swaps) expect(Math.cos(s.ry)).toBeLessThan(-0.2);
+      expect(center.labelIndex).toBe(to >= 1 && to <= 12 ? to - 1 : 5);
+    });
+  }
 });

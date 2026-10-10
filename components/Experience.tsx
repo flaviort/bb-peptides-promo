@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { armBootFallback } from '@/lib/fallback';
 
 // Boots run one after another: in dev strict mode the effect mounts, cleans up and mounts
 // again on the same canvas, and two Stages must never share its WebGL context at once.
@@ -14,6 +15,8 @@ export function Experience() {
     if (!canvas) return;
     let dispose: (() => void) | undefined;
     let cancelled = false;
+    // Boot races its own 8s deadline; this covers the boot chunk itself stalling or boot throwing.
+    const cancelFallback = armBootFallback(10000);
     queue = queue
       .then(async () => {
         if (cancelled) return;
@@ -26,6 +29,7 @@ export function Experience() {
       .catch((err: unknown) => console.error(err));
     return () => {
       cancelled = true;
+      cancelFallback();
       dispose?.();
     };
   }, []);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { nearestSection, planPage, scrollToTime, sectionAt, zoneFor } from '@/lib/scroll/math';
+import { nearestSection, planPage, resnap, scrollToTime, sectionAt, zoneFor } from '@/lib/scroll/math';
 
 const VH = 800;
 // hero and p01 to p12 every 1000, range at 13000, closing (the last section) at 13720.
@@ -50,5 +50,19 @@ describe('planPage', () => {
   });
   it('never pages past the range row: the page just ends', () => {
     expect(planPage(13000, VH, TOPS, 1)).toBeNull();
+  });
+});
+
+describe('resnap', () => {
+  // The same page after the viewport got shorter: every section top moved.
+  const NEW = TOPS.map((t) => t * 0.75);
+  it('lands on the same section top in the paged zone', () => {
+    expect(resnap(5000, TOPS, NEW)).toBe(3750);
+    expect(resnap(5400, TOPS, NEW)).toBe(3750); // nearest page, not a point between products
+    expect(resnap(5600, TOPS, NEW)).toBe(4500);
+  });
+  it('keeps the same relative spot in the free-scrolling zone', () => {
+    expect(resnap(13360, TOPS, NEW)).toBeCloseTo(NEW[13] + 0.5 * (NEW[14] - NEW[13]));
+    expect(resnap(20000, TOPS, NEW)).toBeCloseTo(20000 - TOPS[14] + NEW[14]);
   });
 });
