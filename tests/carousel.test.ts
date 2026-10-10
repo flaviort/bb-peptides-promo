@@ -99,3 +99,15 @@ describe('range row', () => {
     expect(xs[0] + xs[N - 1]).toBeCloseTo(0, 5);
   });
 });
+
+describe('hero ring', () => {
+  it('shrinks vials with distance from the center so the lit vial leads', () => {
+    const { c, models } = setup(false, 0);
+    c.update(1 / 60, { ...DEFAULT_VALUES }, { mx: 0, my: 0 });
+    const scale = (i: number) => models[i].group.scale.x;
+    expect(scale(0)).toBe(1);
+    expect(scale(1)).toBeLessThan(1);
+    expect(scale(2)).toBeLessThan(scale(1));
+    expect(scale(11)).toBeCloseTo(scale(1));
+  });
+});

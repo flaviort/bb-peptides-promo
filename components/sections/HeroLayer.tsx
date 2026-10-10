@@ -7,6 +7,7 @@ import { selectProduct, store, useApp } from '@/lib/store';
 import { Layer } from '@/components/ui/Layer';
 import { Reveal } from '@/components/ui/Reveal';
 import { IconChevron } from '@/components/ui/icons';
+import { cn } from '@/lib/cn';
 
 // The outgoing name animates up and out while the new one reveals by character.
 function ProductTitle({ index, show }: { index: number; show: boolean }) {
@@ -83,10 +84,10 @@ export function HeroLayer() {
               ))}
             </div>
           </div>
-          <Reveal show={active} delay={0.35} className="hero-hint">
+          <div className={cn('hero-hint', active && 'is-on')}>
             <span className="hero-hint-line" aria-hidden="true" />
             Scroll to explore
-          </Reveal>
+          </div>
         </>
       )}
     </Layer>

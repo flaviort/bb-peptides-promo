@@ -6,7 +6,8 @@ export const DEFAULT_VALUES = {
   focus: 0, focusX: 0, focusY: 0, focusZ: 0, focusRotX: 0, focusRotY: 0, focusRotZ: 0,
   sideFade: 0, rigY: 0,
   stageLight: 1, key: 1.2, rim: 1.4, ambient: 0.45, accent: 0, exposure: 1.1,
-  fogNear: 13, fogFar: 25,
+  // The hero ring fades into the Ink with distance; the center vial (10.6 from the camera) stays clear.
+  fogNear: 11, fogFar: 21,
   mouse: 1,
   // -1 on the hero, 0 to 11 across the product sections, 12 on the range row (see lib/stage/walk.ts).
   walk: -1,

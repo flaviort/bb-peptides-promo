@@ -88,6 +88,8 @@ export class Carousel {
           }
         }
       } else {
+        // On the ring, vials shrink with distance so the lit center vial leads (fog dims them too).
+        scale = 1 - Math.min(Math.abs(o), 3) * 0.09 * (1 - v.row);
         const side = Math.sign(o) || 1;
         pose.x += side * v.sideFade * 8;
         pose.z -= v.sideFade * 3;

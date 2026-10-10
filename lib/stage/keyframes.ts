@@ -9,14 +9,14 @@ const SOLO: Patch = { focus: 1, sideFade: 1, rigY: 1, fogNear: 30, fogFar: 60 };
 // One vial centered, a slight forward lean and a three-quarter tilt, the panel on its left.
 // focusRotY stays near 0 so a half turn always puts the label straight away from the camera.
 const WALK: Patch = {
-  ...SOLO, camY: 0, camZ: 7.4, fov: 34, stageLight: 0.9, key: 1.1, rim: 1.6, accent: 0.4, mouse: 0.25,
+  ...SOLO, camY: 0, camZ: 7.4, fov: 34, stageLight: 0.55, key: 0.75, rim: 1.6, accent: 0.4, mouse: 0.25,
   focusX: 0, focusY: -0.15, focusRotX: deg(8), focusRotY: deg(-8), focusRotZ: deg(-12),
 };
 
 function desktop(id: SectionId): Patch {
   if (id === 'hero') return {};
   if (id === 'range') {
-    return { camY: 0, camZ: 23, row: 1, rigY: 1, stageLight: 0, key: 1.5, rim: 1.8, fogNear: 26, fogFar: 52, walk: PRODUCT_COUNT };
+    return { camY: 0, camZ: 26, row: 1, rigY: 1, stageLight: 0, key: 1.5, rim: 1.8, fogNear: 26, fogFar: 52, walk: PRODUCT_COUNT };
   }
   if (id === 'closing') {
     // The camera drops and pushes in so the row rises out of frame while the page reads on.
@@ -27,7 +27,7 @@ function desktop(id: SectionId): Patch {
 
 // Applied after camZ is pushed back 30% on small screens. Phones stack the panel below the vial.
 function mobile(id: SectionId, f: SceneValues) {
-  if (id === 'hero') Object.assign(f, { camZ: 14, camY: -0.6, fogNear: 18, fogFar: 30 });
+  if (id === 'hero') Object.assign(f, { camZ: 14, camY: -0.6, fogNear: 14.5, fogFar: 26 });
   else if (id === 'closing') f.camY = -9;
   else if (id !== 'range') Object.assign(f, { camZ: 12, focusX: 0, focusY: 1.7 });
 }
