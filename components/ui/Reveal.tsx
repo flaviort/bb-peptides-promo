@@ -41,7 +41,11 @@ export function Reveal({ as: Tag = 'div', mode = 'lines', show, delay = 0, class
         gsap.set(el, { autoAlpha: showRef.current ? 1 : 0 });
         return;
       }
+      // SplitText labels the element with its text for screen readers. aria-label is only valid on
+      // headings here; on plain blocks the split spans keep whole words, so they read fine as they are.
+      const heading = /^H[1-6]$/.test(el.tagName);
       split.current = SplitText.create(el, {
+        aria: heading ? 'auto' : 'none',
         type: mode === 'lines' ? 'lines' : 'lines,chars',
         mask: mode === 'pop' ? undefined : 'lines',
         autoSplit: true,
