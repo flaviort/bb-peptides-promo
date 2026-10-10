@@ -1,6 +1,6 @@
 # BB Peptides promo landing: handoff notes
 
-Design intent: `docs/superpowers/specs/2026-10-10-bb-peptides-promo-design.md`. Build plan: `docs/superpowers/plans/2026-10-10-bb-peptides-promo.md`. Product facts: `PRODUCT.md`. Approved brand sample: `mockups/hero.html`.
+Next-session agenda and traps: `docs/SESSION-HANDOFF.md`. Design intent: `docs/superpowers/specs/2026-10-10-bb-peptides-promo-design.md`. Build plan: `docs/superpowers/plans/2026-10-10-bb-peptides-promo.md`. Product facts: `PRODUCT.md`. Approved brand sample: `mockups/hero.html`.
 
 ## Run it
 
