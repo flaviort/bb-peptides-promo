@@ -1,0 +1,385 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #F6EDDC;
+  --color-paper: #EFE2CB;
+  --color-ink: #3A1C12;
+  --color-stripe-1: #4A2116;
+  --color-stripe-2: #A9401F;
+  --color-stripe-3: #E0702C;
+  --color-stripe-4: #F2A65A;
+  --color-stripe-5: #F6CB6E;
+  --font-display: var(--font-kabel), system-ui, sans-serif;
+  --font-mono: var(--font-jb), ui-monospace, monospace;
+  --ease-out-3: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-in-out-3: cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+@property --p { syntax: "<color>"; inherits: true; initial-value: #D9662B; }
+@property --s { syntax: "<color>"; inherits: true; initial-value: #F4A957; }
+@property --d { syntax: "<color>"; inherits: true; initial-value: #7A2E12; }
+
+:root {
+  --p: #D9662B;
+  --s: #F4A957;
+  --d: #7A2E12;
+  transition: --p 0.6s ease, --s 0.6s ease, --d 0.6s ease;
+}
+
+html {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  scrollbar-width: none;
+  overscroll-behavior: none;
+}
+html::-webkit-scrollbar { display: none; }
+/* Tailwind v4 resets buttons to the default cursor. */
+:is(a[href], button, [role="button"], [role="slider"], [role="tab"], summary, label[for], select):not(:disabled, [aria-disabled="true"]) {
+  cursor: pointer;
+}
+body {
+  font-family: var(--font-display);
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: clip; }
+
+/* Paper grain */
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 0.9s steps(3) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  33% { transform: translate(-3%, 2%); }
+  66% { transform: translate(2%, -3%); }
+  100% { transform: translate(0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .grain { animation: none; }
+}
+
+/* Stage */
+.stage-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  touch-action: pan-y;
+}
+body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
+.spacer { height: 125vh; }
+
+/* "Stay groovy": the stacked retro extrusion swells and settles letter by letter, so a wave of
+   depth rolls along the word. The back of the stack stays put and the letter face rides up on
+   top of it, so the text rises as the extrusion grows instead of sinking. */
+@property --ext { syntax: "<number>"; inherits: false; initial-value: 1; }
+.wave-text > span {
+  display: inline-block;
+  --ext: 1;
+  text-shadow:
+    calc(0.03em * var(--ext)) calc(0.03em * var(--ext)) 0 var(--color-stripe-5),
+    calc(0.06em * var(--ext)) calc(0.06em * var(--ext)) 0 var(--color-stripe-4),
+    calc(0.09em * var(--ext)) calc(0.09em * var(--ext)) 0 var(--color-stripe-3),
+    calc(0.12em * var(--ext)) calc(0.12em * var(--ext)) 0 var(--color-stripe-2);
+  transform: translate(calc(-0.12em * (var(--ext) - 1)), calc(-0.12em * (var(--ext) - 1)));
+  animation: extrude-wave 2.6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 120ms - 2.6s);
+}
+@keyframes extrude-wave {
+  0%, 100% { --ext: 0.25; }
+  50% { --ext: 1.8; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave-text > span { animation: none; }
+}
+/* The range row hands straight over to the FAQ, so its stretch is short. */
+.spacer--short { height: 90vh; }
+
+/* Backdrop */
+.backdrop { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.backdrop > * { position: absolute; inset: 0; }
+.backdrop-base {
+  background: radial-gradient(60% 75% at 50% 105%,
+    var(--s) 0%, color-mix(in oklab, var(--s) 45%, var(--color-cream)) 45%, var(--color-cream) 75%);
+}
+.backdrop-waves { width: 100%; height: 100%; display: block; }
+.backdrop-glow {
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-out-3);
+  background: radial-gradient(95% 115% at 45% 110%,
+    color-mix(in oklab, var(--p) 45%, var(--s)) 0%, var(--s) 38%, color-mix(in oklab, var(--s) 55%, var(--color-cream)) 68%, var(--color-cream) 100%);
+}
+.backdrop-glow.is-on { opacity: 1; }
+/* Range lineup: a lit band behind the row falling off to deep flavor color, like a product stage. */
+.backdrop-range {
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-out-3);
+  background:
+    radial-gradient(70% 45% at 55% 52%, rgb(255 250 240 / 0.95) 0%, transparent 70%),
+    radial-gradient(110% 90% at 50% 60%, var(--s) 0%, var(--p) 55%, color-mix(in oklab, var(--d) 75%, var(--p)) 100%);
+}
+.backdrop-range.is-on { opacity: 1; }
+
+/* Layers */
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.45s var(--ease-out-3), visibility 0s linear 0.45s;
+}
+.layer--back { z-index: 0; }
+.layer.is-active { opacity: 1; visibility: visible; transition-delay: 0s; }
+.layer :is(a, button, input, [role="slider"]) { pointer-events: auto; }
+
+/* Type */
+.eyebrow { font-weight: 700; font-size: 0.75rem; line-height: 1; letter-spacing: 0.18em; text-transform: uppercase; }
+.display { font-weight: 900; text-transform: uppercase; line-height: 0.85; letter-spacing: -0.01em; }
+.stripe-type {
+  text-shadow:
+    0.03em 0.03em 0 var(--color-stripe-5),
+    0.06em 0.06em 0 var(--color-stripe-4),
+    0.09em 0.09em 0 var(--color-stripe-3),
+    0.12em 0.12em 0 var(--color-stripe-2);
+}
+
+/* Surfaces and controls */
+.glass {
+  background: rgb(255 250 240 / 0.55);
+  box-shadow: inset 0 0 0 1.5px rgb(58 28 18 / 0.14);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.chip { font-weight: 700; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.65rem 0.9rem; border-radius: 999px; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 1.05rem 1.35rem;
+  border-radius: 999px;
+  transition: background-color 0.3s, color 0.3s, transform 0.2s;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--color-ink); color: var(--color-cream); }
+.btn-ghost { color: var(--color-ink); }
+:focus-visible { outline: 2px solid var(--d); outline-offset: 3px; }
+
+/* Hover-dimming lists */
+.dim-list > * { transition: opacity 0.25s; }
+@media (hover: hover) {
+  .dim-list:has(> :hover) > :not(:hover) { opacity: 0.3; }
+}
+
+/* Rolling letters */
+.roll { display: inline-flex; overflow: hidden; line-height: 1; }
+.roll .ch { display: inline-block; position: relative; transition: transform 0.4s var(--ease-out-3); transition-delay: calc(var(--i) * 18ms); }
+.roll .ch::after { content: attr(data-ch); position: absolute; left: 0; top: 100%; }
+@media (hover: hover) {
+  .roll-host:hover .roll .ch { transform: translateY(-100%); }
+}
+
+@keyframes dot-pulse { 50% { transform: scale(0.5); } }
+.dot-pulse { transform-box: fill-box; transform-origin: center; }
+@media (hover: hover) {
+  .roll-host:hover .dot-pulse, button:hover > svg .dot-pulse { animation: dot-pulse 0.6s ease-in-out infinite; }
+}
+
+/* The panel opens by clipping from the top edge down (no layout work per frame), on every breakpoint. */
+/* Site menu: a compact white card under the button (full screen on phones). It opens by
+   clipping from the top edge down, and the rows slide up into place one after another. */
+.menu-panel {
+  background: rgb(255 255 255 / 0.95);
+  box-shadow: 0 24px 60px -24px rgb(58 28 18 / 0.35), 0 2px 8px rgb(58 28 18 / 0.06);
+  opacity: 0;
+  clip-path: inset(0 0 100% 0 round 1rem);
+  transition: clip-path 0.6s var(--ease-in-out-3), opacity 0.3s;
+}
+.menu-panel.is-open { opacity: 1; clip-path: inset(0 round 1rem); }
+@media (max-width: 767px) {
+  .menu-panel { background: var(--color-cream); box-shadow: none; clip-path: inset(0 0 100% 0); }
+  .menu-panel.is-open { clip-path: inset(0); }
+}
+.menu-item + .menu-item { border-top: 1px solid rgb(58 28 18 / 0.08); }
+.menu-link {
+  display: flex;
+  width: 100%;
+  min-height: 3.25rem;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0 0.9rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  transition: background-color 0.3s, color 0.3s;
+}
+.menu-arrow { opacity: 0; transform: translateX(-6px); transition: opacity 0.3s, transform 0.4s var(--ease-out-3); color: var(--d); }
+.menu-arrow svg { width: 22px; height: 11px; }
+@media (hover: hover) {
+  .menu-link:hover { background: color-mix(in oklab, var(--s) 18%, transparent); color: var(--d); }
+  .menu-link:hover .menu-arrow { opacity: 1; transform: none; }
+}
+.menu-link:focus-visible .menu-arrow { opacity: 1; transform: none; }
+@media (max-width: 767px) {
+  .menu-link { min-height: 4rem; font-size: 1.35rem; }
+}
+.menu-panel .menu-item, .menu-panel .menu-shop { transform: translateY(12px); opacity: 0; transition: transform 0.5s var(--ease-out-3), opacity 0.4s; }
+.menu-panel.is-open .menu-item, .menu-panel.is-open .menu-shop { transform: none; opacity: 1; }
+.menu-panel.is-open .menu-item:nth-child(1) { transition-delay: 0.08s; }
+.menu-panel.is-open .menu-item:nth-child(2) { transition-delay: 0.12s; }
+.menu-panel.is-open .menu-item:nth-child(3) { transition-delay: 0.16s; }
+.menu-panel.is-open .menu-item:nth-child(4) { transition-delay: 0.2s; }
+.menu-panel.is-open .menu-shop { transition-delay: 0.26s; }
+@media (prefers-reduced-motion: reduce) {
+  .menu-panel, .menu-panel .menu-item, .menu-panel .menu-shop { transition: opacity 0.2s; transform: none; }
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, var(--color-stripe-2), var(--color-stripe-3), var(--color-stripe-4), var(--color-stripe-5));
+  box-shadow: 0 0 6px var(--color-stripe-4), 0 0 18px color-mix(in oklab, var(--color-stripe-3) 60%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot-pulse { animation: none !important; }
+  .roll .ch { transition: none; }
+}
+
+/* Hero flavor arrows: a thin ring that fills with ink on hover while the arrow pushes ahead. */
+.hero-arrow {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 999px;
+  color: var(--color-ink);
+  background: rgb(255 250 240 / 0.35);
+  box-shadow: inset 0 0 0 1.5px rgb(58 28 18 / 0.22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background-color 0.35s var(--ease-out-3), color 0.35s var(--ease-out-3), box-shadow 0.35s var(--ease-out-3), transform 0.35s var(--ease-out-3);
+}
+.hero-arrow svg { transition: transform 0.45s var(--ease-out-3); }
+.hero-arrow .arrow-tail { transition: opacity 0.3s; }
+.hero-arrow:active { transform: scale(0.94); }
+@media (hover: hover) {
+  .hero-arrow:hover { background: var(--color-ink); color: var(--color-cream); box-shadow: inset 0 0 0 1.5px var(--color-ink), 0 10px 30px -10px rgb(58 28 18 / 0.5); }
+  .hero-arrow[data-dir="next"]:hover svg { transform: translateX(3px); }
+  .hero-arrow[data-dir="prev"]:hover svg { transform: translateX(-3px) scaleX(-1); }
+  .hero-arrow:hover .arrow-tail { opacity: 0.45; }
+}
+@media (max-width: 767px) {
+  .hero-arrow { width: 3rem; height: 3rem; }
+}
+
+/* Soft cream fog behind the flavor name. It sits in the backdrop, under the 3D stage. */
+.backdrop > .hero-haze {
+  inset: auto 0 0 0;
+  height: 30vh;
+  background: radial-gradient(32% 62% at 50% 100%,
+    rgb(246 237 220 / 0.9) 0%, rgb(246 237 220 / 0.6) 40%, transparent 100%);
+  transition: opacity 0.8s var(--ease-out-3);
+}
+.hero-haze.is-hidden { opacity: 0; }
+@media (max-width: 767px) {
+  .backdrop > .hero-haze { height: 36vh; background: radial-gradient(90% 70% at 50% 100%, rgb(246 237 220 / 0.95) 0%, rgb(246 237 220 / 0.6) 45%, transparent 100%); }
+}
+
+/* Claim rail dots: solid white, no outline. The active one sends out soft white rings. */
+.claim-dot {
+  position: relative;
+  isolation: isolate;
+  background: rgb(255 255 255 / 0.95);
+  transition: color 0.5s var(--ease-out-3), transform 0.5s var(--ease-out-3);
+}
+.claim-dot::before,
+.claim-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.9), 0 0 12px rgb(255 255 255 / 0.35);
+  opacity: 0;
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .claim-link:hover .claim-dot { transform: scale(1.06); }
+}
+.claim-dot.is-on { transform: scale(1.08); box-shadow: 0 6px 20px -8px color-mix(in oklab, var(--d) 45%, transparent); }
+.claim-dot.is-on::before,
+.claim-dot.is-on::after { animation: claim-ripple 2.4s cubic-bezier(0.2, 0.6, 0.35, 1) infinite; }
+.claim-dot.is-on::after { animation-delay: 1.2s; }
+@keyframes claim-ripple {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .claim-dot.is-on::before { animation: none; opacity: 0.6; transform: scale(1.3); }
+  .claim-dot.is-on::after { animation: none; }
+}
+/* Statement backdrop: strong flavor colors with blurred light sweeping fast across it. */
+.statement-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(75% 85% at 50% 55%, color-mix(in oklab, var(--s) 70%, white) 0%, var(--s) 30%, var(--p) 70%, color-mix(in oklab, var(--d) 45%, var(--p)) 100%);
+}
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  will-change: transform;
+  animation: aurora-drift var(--t, 4s) ease-in-out infinite alternate;
+}
+.aurora-blob--1 { left: 2%; top: 8%; width: 32vw; height: 70vh; background: rgb(255 238 210 / 0.75); --t: 3.6s; --x: 26vw; --y: 6vh; }
+.aurora-blob--2 { right: 4%; top: 18%; width: 30vw; height: 64vh; background: color-mix(in oklab, var(--s) 80%, white); --t: 4.4s; --x: -24vw; --y: -8vh; }
+.aurora-blob--3 { left: 30%; bottom: -14%; width: 44vw; height: 46vh; background: color-mix(in oklab, var(--d) 80%, var(--p)); opacity: 0.5; --t: 5s; --x: 14vw; --y: -10vh; }
+.aurora-blob--4 { left: -8%; bottom: 4%; width: 26vw; height: 50vh; background: color-mix(in oklab, var(--p) 60%, white); --t: 3.2s; --x: 30vw; --y: -12vh; }
+.aurora-blob--5 { right: -6%; top: -12%; width: 34vw; height: 48vh; background: color-mix(in oklab, var(--p) 80%, var(--d)); opacity: 0.7; --t: 4.8s; --x: -28vw; --y: 14vh; }
+.statement-aurora > .backdrop-waves { position: absolute; inset: 0; }
+@keyframes aurora-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(var(--x), var(--y), 0) scale(1.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob { animation: none; }
+}
+.statement-type {
+  color: rgb(255 248 236 / 0.5);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+}
+
+.preloader { transition: opacity 0.8s var(--ease-out-3), visibility 0s linear 0.8s; }
+.preloader.is-leaving { opacity: 0; visibility: hidden; pointer-events: none; }
+/* Set before first paint by the inline script in app/layout.tsx for visitors who already passed the gate. */
+html[data-age-ok] [data-gate] { display: none; }
+
+/* Accordion panel: --acc-ms is shared by the collapse and the delayed visibility flip (see Accordion.tsx). */
+.acc-panel { transition: grid-template-rows var(--acc-ms) var(--ease-out-3), visibility 0s linear var(--acc-delay); }
+@media (prefers-reduced-motion: reduce) {
+  .acc-panel { transition: none; }
+}
