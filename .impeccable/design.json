@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-10T13:00:00Z",
+  "title": "Design System: Bodybuilding Peptides + Promo",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(17.8% 0 0)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#111111",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#7D7D7D",
+          "#C4C4C4",
+          "#EEEEEE"
+        ]
+      },
+      "electric-blue": {
+        "role": "primary",
+        "displayName": "Electric Blue",
+        "canonical": "oklch(56.5% 0.239 267.6)",
+        "tonalRamp": [
+          "#020036",
+          "#0A0274",
+          "#170EBA",
+          "#2842E1",
+          "#456CFD",
+          "#7799F8",
+          "#ABC3FE",
+          "#E8EEFF"
+        ]
+      },
+      "light-blue": {
+        "role": "secondary",
+        "displayName": "Light Blue",
+        "canonical": "oklch(76.9% 0.113 259.7)",
+        "tonalRamp": [
+          "#000039",
+          "#001E59",
+          "#173D7A",
+          "#355C9D",
+          "#547DC0",
+          "#749FE4",
+          "#A3C6FE",
+          "#E6EFFF"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "canonical": "oklch(100% 0 0)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#7D7D7D",
+          "#9E9E9E",
+          "#C4C4C4",
+          "#FFFFFF"
+        ]
+      },
+      "label-stripe": {
+        "role": "tertiary",
+        "displayName": "Label Stripe",
+        "canonical": "oklch(67.6% 0.170 269.5)",
+        "tonalRamp": [
+          "#030035",
+          "#0F0174",
+          "#202E98",
+          "#3951BC",
+          "#5673E1",
+          "#7B98F8",
+          "#ADC2FE",
+          "#E8EEFF"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgb(255 255 255 / 0.14)"
+      },
+      "hairline-strong": {
+        "role": "neutral",
+        "displayName": "Hairline Strong",
+        "canonical": "rgb(255 255 255 / 0.3)"
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "canonical": "rgb(255 255 255 / 0.62)"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero product name in RBNo2.1 Medium Italic caps; the outlined ghost name uses the same face larger."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Closing section, band, range and walk product names; menu links."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "How it works step titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Product about, FAQ answers and step copy, 38 to 70ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, nav links, category meta, chips, rail and range links."
+      }
+    },
+    "shadows": [
+      {
+        "name": "hairline-outline",
+        "value": "inset 0 0 0 1px rgb(255 255 255 / 0.3)",
+        "purpose": "Outlines square controls, chips and social buttons without changing box size."
+      },
+      {
+        "name": "indicator-glow",
+        "value": "0 0 12px rgb(59 96 255 / 0.9)",
+        "purpose": "Active hero track step; 10px on the progress line, 8px on the chip dot."
+      },
+      {
+        "name": "lamp-glow",
+        "value": "0 0 24px 6px rgb(137 181 252 / 0.55), 0 10px 60px 20px rgb(59 96 255 / 0.35)",
+        "purpose": "The hero lamp bar only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-3",
+        "value": "cubic-bezier(0.215, 0.61, 0.355, 1)",
+        "purpose": "Default for fades, layer cross-fades, reveals and pools."
+      },
+      {
+        "name": "ease-in-out-3",
+        "value": "cubic-bezier(0.645, 0.045, 0.355, 1)",
+        "purpose": "Menu panel clip-path wipe (0.7s)."
+      },
+      {
+        "name": "ease-out-5",
+        "value": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "Small snappy moves: button arrow, rail tick, track bars, menu squares."
+      },
+      {
+        "name": "layer-fade",
+        "value": "0.45s",
+        "purpose": "Cross-fade between stage content layers."
+      },
+      {
+        "name": "roll-stagger",
+        "value": "18ms per character, 0.4s",
+        "purpose": "Rolling button labels on hover."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "640px"
+      },
+      {
+        "name": "tablet",
+        "value": "860px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "White square action with a rolling label and arrow; Electric Blue on hover.",
+      "html": "<a class=\"ds-btn ds-btn-primary\" href=\"#\">Start assessment<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"><path d=\"M2 8h11M9 4l4 4-4 4\"/></svg></a>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 48px; padding: 0 20px; font-family: Poppins, system-ui, sans-serif; font-size: 14px; font-weight: 600; line-height: 1; white-space: nowrap; text-decoration: none; border-radius: 0; transition: background-color 0.25s, color 0.25s, transform 0.2s; } .ds-btn svg { width: 16px; height: 16px; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); } .ds-btn-primary { background: #fff; color: #111111; } .ds-btn-primary:hover { background: #3B60FF; color: #fff; } .ds-btn:hover svg { transform: translateX(3px); } .ds-btn:active { transform: scale(0.98); } .ds-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action outlined in White 60%; fills White on hover.",
+      "html": "<a class=\"ds-btn-outline\" href=\"#\">Start assessment</a>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; height: 48px; padding: 0 20px; font-family: Poppins, system-ui, sans-serif; font-size: 14px; font-weight: 600; line-height: 1; color: #fff; background: transparent; text-decoration: none; border-radius: 0; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.6); transition: background-color 0.25s, color 0.25s, transform 0.2s; } .ds-btn-outline:hover { background: #fff; color: #111111; } .ds-btn-outline:active { transform: scale(0.98); } .ds-btn-outline:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }"
+    },
+    {
+      "name": "Square Arrow",
+      "kind": "button",
+      "refersTo": "button-square",
+      "description": "48px hairline square with a stroke chevron; the hero previous and next.",
+      "html": "<button class=\"ds-btn-square\" aria-label=\"Next product\"><svg viewBox=\"0 0 18 18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"><path d=\"M7 3l6 6-6 6\"/></svg></button>",
+      "css": ".ds-btn-square { display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 0; background: transparent; color: #fff; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3); transition: background-color 0.25s, color 0.25s, transform 0.2s; } .ds-btn-square svg { width: 18px; height: 18px; } .ds-btn-square:hover { background: #fff; color: #111111; } .ds-btn-square:active { transform: scale(0.98); } .ds-btn-square:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }"
+    },
+    {
+      "name": "Focus Chip",
+      "kind": "chip",
+      "refersTo": "focus-chip",
+      "description": "Read-only focus bullet with a glowing Electric Blue square dot.",
+      "html": "<ul class=\"ds-chips\"><li class=\"ds-chip\">Lean muscle</li><li class=\"ds-chip\">Recovery</li><li class=\"ds-chip\">Sleep quality</li></ul>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; } .ds-chip { display: inline-flex; align-items: center; gap: 10px; height: 36px; padding: 0 14px 0 12px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3); font-family: Poppins, system-ui, sans-serif; font-size: 13px; font-weight: 500; color: #fff; } .ds-chip::before { content: \"\"; width: 6px; height: 6px; background: #3B60FF; box-shadow: 0 0 8px rgb(59 96 255 / 0.9); }"
+    },
+    {
+      "name": "Nav",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Menu toggle, centered lockup, FAQ link and primary action on Ink with a bottom hairline.",
+      "html": "<header class=\"ds-nav\"><button class=\"ds-menu\"><span class=\"ds-sq\"><i></i><i></i><i></i><i></i></span>Menu</button><span class=\"ds-logo\">BODYBUILDING PEPTIDES +</span><div class=\"ds-right\"><button class=\"ds-link\">FAQ</button><a class=\"ds-cta\" href=\"#\">Start assessment</a></div></header>",
+      "css": ".ds-nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 96px; padding: 0 clamp(20px, 4vw, 56px); background: rgb(17 17 17 / 0.94); border-bottom: 1px solid rgb(255 255 255 / 0.14); color: #fff; font-family: Poppins, system-ui, sans-serif; } .ds-menu { justify-self: start; display: inline-flex; align-items: center; gap: 12px; min-height: 48px; background: none; border: 0; color: #fff; font: 500 14px Poppins, system-ui, sans-serif; } .ds-sq { display: grid; grid-template-columns: repeat(2, 5px); gap: 4px; } .ds-sq i { width: 5px; height: 5px; background: #fff; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); } .ds-menu:hover .ds-sq i:nth-child(1) { transform: translate(-2px, -2px); } .ds-menu:hover .ds-sq i:nth-child(4) { transform: translate(2px, 2px); } .ds-logo { font-style: italic; font-weight: 500; font-size: 15px; } .ds-right { justify-self: end; display: flex; align-items: center; gap: 24px; } .ds-link { min-height: 44px; background: none; border: 0; font: 500 14px Poppins, system-ui, sans-serif; color: rgb(255 255 255 / 0.62); transition: color 0.2s; } .ds-link:hover { color: #fff; } .ds-cta { display: inline-flex; align-items: center; height: 48px; padding: 0 20px; background: #fff; color: #111111; font-size: 14px; font-weight: 600; text-decoration: none; transition: background-color 0.25s, color 0.25s; } .ds-cta:hover { background: #3B60FF; color: #fff; } .ds-nav :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }"
+    },
+    {
+      "name": "Hero Title Block",
+      "kind": "custom",
+      "description": "Huge italic caps name between square arrows, Light Blue category meta and the 12-step glowing track.",
+      "html": "<div class=\"ds-hero\"><h1 class=\"ds-title\">BPC-157</h1><p class=\"ds-meta\"><span>Recovery &amp; Vitality</span><i></i><span class=\"ds-vial\">5 mL vial</span></p><div class=\"ds-track\"><button></button><button></button><button aria-pressed=\"true\"></button><button></button><button></button><button></button></div></div>",
+      "css": ".ds-hero { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 48px 16px; background: #111111; color: #fff; } .ds-title { margin: 0; font-family: 'RBNo2.1', Poppins, sans-serif; font-style: italic; font-weight: 500; text-transform: uppercase; font-size: clamp(2.4rem, 6.4vw, 6rem); line-height: 0.92; letter-spacing: -0.01em; } .ds-meta { display: flex; align-items: center; gap: 14px; margin: 0; font: 15px Poppins, system-ui, sans-serif; color: #89B5FC; } .ds-meta i { width: 4px; height: 4px; background: #89B5FC; opacity: 0.6; } .ds-vial { color: rgb(255 255 255 / 0.62); font-variant-numeric: tabular-nums; } .ds-track { display: flex; gap: 6px; } .ds-track button { position: relative; width: 22px; height: 24px; padding: 0; border: 0; background: none; } .ds-track button::before { content: \"\"; position: absolute; left: 0; right: 0; top: 50%; height: 4px; transform: translateY(-50%) scaleY(0.5); background: rgb(255 255 255 / 0.22); transition: background-color 0.3s, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); } .ds-track button:hover::before { background: rgb(255 255 255 / 0.6); } .ds-track button[aria-pressed=\"true\"]::before { transform: translateY(-50%); background: #3B60FF; box-shadow: 0 0 12px rgb(59 96 255 / 0.9); } .ds-track button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }"
+    },
+    {
+      "name": "Spec Rows",
+      "kind": "card",
+      "description": "Hairline-ruled definition rows instead of a card.",
+      "html": "<dl class=\"ds-specs\"><div><dt>Strength</dt><dd>10 mg</dd></div><div><dt>Format</dt><dd>Injectable, 5 mL vial</dd></div></dl>",
+      "css": ".ds-specs { margin: 0; border-top: 1px solid rgb(255 255 255 / 0.14); font-family: Poppins, system-ui, sans-serif; color: #fff; } .ds-specs > div { display: grid; grid-template-columns: 96px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid rgb(255 255 255 / 0.14); font-size: 14px; } .ds-specs dt { color: rgb(255 255 255 / 0.62); } .ds-specs dd { margin: 0; font-variant-numeric: tabular-nums; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Lamp Room",
+    "overview": "A dark room, one lamp, one vial. The page is an Ink (#111111) ground that the brand blues light from above and below, never paint. Electric Blue arrives as floor pools, the vial labels and a handful of glowing indicators; Light Blue is the lamp itself and the category text it would print in. White carries the type. The whole range appears first as an arc of 12 vials, then the scroll walks them one at a time: each focus vial makes one full turn per page, its label swaps only while it faces away, and the copy panel swaps in the same beat.\n\nStructure is drawn, not boxed. Hairlines (1px white at 14% and 30%), corner brackets on a fixed frame, a faint 12-column floor grid and square controls hold the page together; nothing is rounded and nothing floats on a drop shadow. Display type is RBNo2.1 Medium Italic in capitals, set huge and tight; everything that has to be read is Poppins. Density is low on the stage (one name, one meta line, one track) and rises only in the closing reading sections.\n\nProvenance: this world was pinned by the client's 2026 brand book (recorded in `../bodybuilding-peptides/DESIGN.md`) and a brand sample the user approved (`mockups/hero.html`, with the Ink ground chosen by the user). The Impeccable concept roll was deliberately not run, so there is no seed key. The structural and motion base is forked from the Hiatus promo (`../hiatus`).",
+    "keyCharacteristics": [
+      "Ink ground, lit by Electric Blue and Light Blue gradients that read as light falling on a floor.",
+      "One focus vial at a time; the label and the panel copy swap together while the vial faces away.",
+      "RBNo2.1 Medium Italic caps for names and headlines, Poppins for everything read.",
+      "Square corners everywhere; hairlines and corner brackets instead of cards.",
+      "Glow is reserved for light sources and Electric Blue indicators."
+    ],
+    "rules": [
+      {
+        "name": "The Light Not Paint Rule",
+        "body": "On the stage, blue is never a flat fill behind content. It arrives as radial pools from below, a beam from above, a lamp bar or a lit indicator. The single exception is the assessment band, the one full Electric Blue field, placed at the moment the page asks for the action.",
+        "section": "colors"
+      },
+      {
+        "name": "The No White On Light Blue Rule",
+        "body": "Light Blue is a text and light color on Ink. Never set White text or the logo on a Light Blue fill (brand book).",
+        "section": "colors"
+      },
+      {
+        "name": "The Category Light Rule",
+        "body": "Each category owns a lighting state, not a ground color: Muscle Growth is the Electric pool, Recovery & Vitality the Light Blue pool, Neuro & Cognitive the narrow beam. Crossing categories blends the pools and the 3D rim tint over the middle half of a step.",
+        "section": "colors"
+      },
+      {
+        "name": "The Italic Caps Is For Names Rule",
+        "body": "RBNo2.1 sets product names, section headlines and menu links, always italic, uppercase and 500. It never sets a sentence of body copy, a button or a label.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Count Rule",
+        "body": "Strengths, vial sizes, step numbers, menu numbers, rail numbers and the preloader count use `font-variant-numeric: tabular-nums`.",
+        "section": "typography"
+      },
+      {
+        "name": "The Only Light Glows Rule",
+        "body": "A glow is allowed when the element is a light source or an Electric Blue indicator (lamp, progress line, active step, chip dot). Buttons, panels, chips and menus never get a shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do put blue on the stage as light: radial pools from the floor, a beam, a lamp bar, a glowing indicator.",
+      "Do set product names and headlines in RBNo2.1 Medium Italic caps at weight 500 with line-height 0.92, and everything read in Poppins.",
+      "Do keep every corner square (0px) and draw outlines with a 1px inset hairline (rgb(255 255 255 / 0.14) or 0.3).",
+      "Do show category with Light Blue text and a lighting state, not a colored ground.",
+      "Do use White fill with Ink text for the primary action, Electric Blue on hover.",
+      "Do keep one product in focus at a time and swap its label and copy together while the vial faces away."
+    ],
+    "donts": [
+      "Don't round anything.",
+      "Don't put drop shadows on buttons, panels, chips or menus; glow belongs only to light sources and Electric Blue indicators.",
+      "Don't set White text or the logo on a Light Blue fill.",
+      "Don't flood the stage with a flat Electric Blue background; the assessment band is the one full blue field.",
+      "Don't use the Label Stripe (#6E8EFF) outside the vial label.",
+      "Don't set body copy, buttons or labels in the italic display face."
+    ]
+  }
+}
