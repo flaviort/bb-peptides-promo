@@ -66,13 +66,17 @@ Sections: `hero, p01 … p12, range, closing` (15).
 | `range` | Camera pulls back; all 12 vials stand in one row. Hovering a vial lifts it and shows its name. | Heading "The full lineup", each vial clickable to its product page. |
 | `closing` | Canvas fades out and stops rendering. | How it works, assessment band, FAQ, footer (4.6). |
 
-Entering the walk from the hero: the carousel turns to product 01 while the side vials fall away, so the walk always starts at 01. Picking a product in the hero and then scrolling still starts at 01; clicking the center vial is the shortcut to its own section.
+Entering the walk from the hero: the side vials fall away while the center vial spins once and lands as product 01, so the walk always starts at 01 whichever vial was centered. Clicking the center vial is the shortcut to its own section.
 
 ### 4.4 The walk and the label swap
 
-The timeline writes a continuous `walk` value: 0 at `p01`, 11 at `p12`, interpolated between sections. The focus vial's rotation is `focusRotY = base + walk * 2π`, and its label index is `round(walk)`. At `walk = k + 0.5` the vial has turned exactly half a turn from the front, so the label faces away from the camera at the instant `round(walk)` changes. The swap always happens out of sight, at any scroll speed and in either direction.
+The timeline writes a continuous `walk` value: -1 at `hero`, 0 at `p01` through 11 at `p12`, 12 at `range` and `closing`, interpolated linearly between sections. The focus vial adds `2π × frac(walk)` to its Y rotation, so it turns once per page.
 
-During the spin the vial dips slightly and its tilt eases back, so the turn reads as a deliberate move rather than a wobble. The panel copy leaves upward as the spin starts and the new copy reveals once it lands (SplitText lines, as in Hiatus).
+The label the focus vial should show is `labelTarget(walk)`: product `round(walk)` while that is between 0 and 11, otherwise the vial's own product. A pending label is applied only while the vial faces away from the camera (`cos(ry) < -0.2` on its final pose), so a swap is never seen, at any scroll speed, in either direction, including the hero to `p01` move (the vial spins once and lands as product 01) and the `p12` to `range` move (it spins once and becomes itself again before rejoining the row). Vials that are not in focus always show their own product.
+
+Clicking the center vial in the hero pages to that vial's own section; the walk spins through the products in between and lands on it.
+
+During the spin the vial dips slightly and its tilt eases back, so the turn reads as a deliberate move rather than a wobble. The panel copy leaves upward when the label swaps and the new copy reveals as the vial lands (SplitText lines, as in Hiatus). The product shown in the UI is always the label actually on the vial.
 
 ### 4.5 Category lighting
 
@@ -113,7 +117,7 @@ Approved in `mockups/hero.html` with the Ink ground.
 
 ### 5.1 3D look
 
-- Vial: about 2:1 height to width, matching the renders. Glass body with rounded heel and short shoulder into the neck, aluminium crimp ring (brushed, bright), Electric Blue flip cap (satin plastic). Glass is `MeshPhysicalMaterial` with transmission on the high tier, a reflective transparent standard material on the low tier.
+- Vial: about 2:1 height to width, matching the renders. Glass body with rounded heel and short shoulder into the neck, aluminium crimp ring (brushed, bright), Electric Blue flip cap (satin plastic). Glass is a reflection-only shell: a black `MeshPhysicalMaterial` with additive blending, so only the studio reflections and rim highlights render and the Ink ground and light pools show through. Transmission is not used (it renders the transparent page as black). High tier adds a back-face shell and clearcoat; low tier uses a single standard-material shell.
 - Label: full-wrap band at the lower two thirds of the body, drawn on a canvas at runtime in Poppins: Electric Blue ground, product name in White SemiBold, category line, strength, a Light Blue stripe with the vial size, "Rx only". The back of the wrap carries a quiet hairline block. 2048px wide on high tier, 1024px on low.
 - Environment: studio softboxes baked into the environment map (Hiatus `Studio.ts`), recoloured cool. ACES tone mapping.
 - Lights: Light Blue overhead spot on the focus vial, Electric Blue rim from below, neutral key.
@@ -158,11 +162,11 @@ Boundaries:
 - React components read `store` (product index, section) and render HTML only.
 - `lib/products.ts` is the only place product facts live. Adding a vial product is one entry; the label draws itself.
 
-Quality tiers: high (desktop, DPR up to 2, transmission glass, 12 vials); low (mobile and low-power, DPR up to 1.5, standard glass, 12 vials, 1024px labels).
+Quality tiers: high (desktop, DPR up to 2, two-shell clearcoat glass, 12 vials); low (mobile and low-power, DPR up to 1.5, standard glass, 12 vials, 1024px labels).
 
 ## 7. Accessibility and resilience
 
-- `prefers-reduced-motion`: no paging, native scroll, reveals become fades, no idle wobble, the walk swaps labels with a crossfade instead of a spin.
+- `prefers-reduced-motion`: no paging, native scroll, reveals become fades, no idle wobble, the focus vial does not spin; it dips (scales down) through each swap and the label changes at the smallest point.
 - All product facts exist as real HTML text; the canvas is `aria-hidden`.
 - Real buttons with labels and visible focus; arrow keys switch products in the hero and step through the walk; the menu traps focus.
 - No WebGL or load failure: static vial renders from the BB repo (`branding-guide-assets/products/*.webp`, Semax / Selank from `img-peptides`) per product, native scroll, all content intact.
@@ -178,7 +182,7 @@ Quality tiers: high (desktop, DPR up to 2, transmission glass, 12 vials); low (m
 
 ## 9. SEO
 
-Title, description and Open Graph from the live site's framing (physician-guided peptides, online assessment). Canonical from `NEXT_PUBLIC_SITE_URL`. JSON-LD: Organization, WebSite, an ItemList of the 12 products linking to their trybbpeptides.com pages, FAQPage from the four FAQs. OG image rendered at build in the Ink and Electric Blue style.
+Title, description and Open Graph from the live site's framing (physician-guided peptides, online assessment). Canonical from `NEXT_PUBLIC_SITE_URL`. JSON-LD: Organization, WebSite, an ItemList of the 12 products linking to their trybbpeptides.com pages, FAQPage from the four FAQs. OG image is a static 1200x630 PNG captured from the built hero (RBNo2.1 ships only as woff2, which the build-time image renderer cannot read).
 
 ## 10. Verification
 
