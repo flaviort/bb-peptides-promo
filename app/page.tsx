@@ -9,10 +9,15 @@ import { ClosingSection } from '@/components/sections/ClosingSection';
 import { Nav } from '@/components/chrome/Nav';
 import { Preloader } from '@/components/sections/Preloader';
 import { SECTIONS } from '@/lib/scroll/sections';
+import { structuredData } from '@/lib/structured-data';
 
 export default function Page() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData()).replace(/</g, '\\u003c') }}
+      />
       <Backdrop />
       <Experience />
       <HeroLayer />
