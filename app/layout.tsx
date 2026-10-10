@@ -1,22 +1,17 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
-import { JetBrains_Mono } from 'next/font/google';
-import { KEYS } from '@/lib/persist';
+import { Poppins } from 'next/font/google';
 import { SITE, SITE_URL } from '@/lib/site';
 import './globals.css';
 
-// Latin subsets of Neue Kabel as WOFF2, about a fifth of the OTF weight. No 500: nothing renders it.
-const kabel = localFont({
-  src: [
-    { path: './fonts/NeueKabel-Book.woff2', weight: '400', style: 'normal' },
-    { path: './fonts/NeueKabel-Bold.woff2', weight: '700', style: 'normal' },
-    { path: './fonts/NeueKabel-Black.woff2', weight: '900', style: 'normal' },
-  ],
-  variable: '--font-kabel',
+// RBNo2.1 Medium Italic is a commercial licence: one self-hosted Latin woff2, never redistributed.
+const rbno = localFont({
+  src: [{ path: './fonts/rbno21a-medium-italic-latin.woff2', weight: '500', style: 'italic' }],
+  variable: '--font-rbno',
   display: 'swap',
 });
 
-const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-jb', display: 'swap' });
+const poppins = Poppins({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-poppins', display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: SITE_URL,
@@ -24,7 +19,7 @@ export const metadata: Metadata = {
   description: SITE.description,
   applicationName: SITE.shortName,
   publisher: SITE.company,
-  category: 'food & drink',
+  category: 'health',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
@@ -39,21 +34,12 @@ export const metadata: Metadata = {
   formatDetection: { telephone: false, address: false, email: false },
 };
 
-export const viewport: Viewport = { themeColor: SITE.cream, colorScheme: 'light' };
-
-// Runs before first paint: a returning visitor who already passed the age gate never sees it flash in.
-const gateScript = `try{if(localStorage.getItem(${JSON.stringify(KEYS.age)})==='1')document.documentElement.dataset.ageOk=''}catch(e){}`;
+export const viewport: Viewport = { themeColor: SITE.ink, colorScheme: 'dark' };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${kabel.variable} ${mono.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: gateScript }} />
-      </head>
-      <body>
-        {children}
-        <div className="grain" aria-hidden="true" />
-      </body>
+    <html lang="en" className={`${rbno.variable} ${poppins.variable}`} suppressHydrationWarning>
+      <body>{children}</body>
     </html>
   );
 }

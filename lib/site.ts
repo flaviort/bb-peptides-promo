@@ -7,15 +7,14 @@ export const SITE_URL = new URL(
 );
 
 export const SITE = {
-  name: 'Hiatus THC Seltzer',
-  shortName: 'Hiatus',
-  title: 'Hiatus THC Seltzer | A taste of time off',
+  name: 'Bodybuilding Peptides +',
+  shortName: 'BB Peptides',
+  title: 'Bodybuilding Peptides + | Physician-guided peptides, started online',
   description:
-    'Hemp-derived THC + CBD seltzer with organic fruit juice. Feel it in minutes, gone in about 90. Four flavors, zero alcohol, 21+.',
-  tagline: 'A taste of time off',
-  company: 'Cypress Hemp',
-  companyUrl: 'https://www.cypresshemp.com',
-  cream: '#F6EDDC',
+    'Explore 12 physician-guided peptides for muscle growth, recovery and focus, from CJC-1295 / Ipamorelin to BPC-157. Start your online assessment and a licensed provider reviews it.',
+  company: 'Bodybuilding Peptides, Inc.',
+  companyUrl: 'https://www.trybbpeptides.com',
+  ink: '#111111',
 } as const;
 
 export const absoluteUrl = (path: string) => new URL(path, SITE_URL).toString();
