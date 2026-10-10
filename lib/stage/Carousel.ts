@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import type { ProductModel } from './ProductModel';
 import type { SceneValues } from './values';
 import {
-  blendPose, carouselPose, focusPose, nearestSlotForProduct, productAtPos, rowPose, wrapOffset, type Pose,
+  MAGNIFY_SCALE, ROW_GAP, blendPose, carouselPose, focusPose, nearestSlotForProduct, productAtPos, rowMagnify, rowPose, wrapOffset,
+  type Pose,
 } from './layout';
 import { TAU, dipScale, facesAway, labelTarget, spinAngle, spinPhase } from './walk';
 
@@ -16,7 +17,12 @@ export function labelToward(group: THREE.Object3D): number {
 /** Turns the vial makes on a jump between products, however many it skips. */
 export const JUMP_TURNS = 2;
 
-export interface FrameInput { mx: number; my: number }
+export interface FrameInput {
+  mx: number;
+  my: number;
+  /** World x the range row swells around: under the cursor on desktop, the middle of the view on phones. */
+  rowFocusX?: number;
+}
 export interface CarouselOptions { reduced: boolean }
 
 export class Carousel {
@@ -119,6 +125,15 @@ export class Carousel {
         const side = Math.sign(o) || 1;
         pose.x += side * v.sideFade * 8;
         pose.z -= v.sideFade * 3;
+      }
+
+      // The row swells around its focus point, and the vials beside it step aside to make room.
+      if (v.row > 0) {
+        const dx = (i - (n - 1) / 2) * ROW_GAP * v.spread - (input.rowFocusX ?? 0);
+        const k = rowMagnify(dx) * v.row;
+        scale *= 1 + MAGNIFY_SCALE * k;
+        pose.x += dx * 0.25 * k;
+        pose.y += 0.2 * k;
       }
 
       const want = this.hover === i ? v.row : 0;

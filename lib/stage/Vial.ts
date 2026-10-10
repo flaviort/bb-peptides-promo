@@ -51,6 +51,8 @@ export interface VialMaterials {
   glass: THREE.Material;
   /** Inner surface of the far wall, high tier only: gives the glass its thickness. */
   glassBack: THREE.Material | null;
+  /** Invisible: marks the vial's silhouette in the stencil so the grid room (GridRoom.ts) passes behind the glass. */
+  mask: THREE.Material;
   crimp: THREE.MeshStandardMaterial;
   cap: THREE.MeshStandardMaterial;
   label(map: THREE.Texture): THREE.MeshStandardMaterial;
@@ -74,6 +76,10 @@ export function createVialMaterials(quality: Quality): VialMaterials {
   const high = quality === 'high';
   const glass = glassMaterial(high, THREE.FrontSide, 0.8);
   const glassBack = high ? glassMaterial(true, THREE.BackSide, 0.45) : null;
+  const mask = new THREE.MeshBasicMaterial({
+    colorWrite: false, depthWrite: false,
+    stencilWrite: true, stencilRef: 1, stencilFunc: THREE.AlwaysStencilFunc, stencilZPass: THREE.ReplaceStencilOp,
+  });
   const crimp = new THREE.MeshStandardMaterial({ color: 0xd9dde4, metalness: 1, roughness: 0.22 });
   const cap = high
     ? new THREE.MeshPhysicalMaterial({ color: 0x3b60ff, roughness: 0.38, clearcoat: 0.5, clearcoatRoughness: 0.2, envMapIntensity: 0.4 })
@@ -85,10 +91,11 @@ export function createVialMaterials(quality: Quality): VialMaterials {
   return {
     glass,
     glassBack,
+    mask,
     crimp,
     cap,
     label,
-    dispose: () => [glass, glassBack, crimp, cap].forEach((m) => m?.dispose()),
+    dispose: () => [glass, glassBack, mask, crimp, cap].forEach((m) => m?.dispose()),
   };
 }
 
@@ -104,7 +111,7 @@ export class VialModel implements ProductModel {
     label.name = 'label';
     const inner = new THREE.Group();
     // Opaque parts first; the additive glass shells draw last, over them.
-    inner.add(label, new THREE.Mesh(geo.crimp, mats.crimp), new THREE.Mesh(geo.cap, mats.cap));
+    inner.add(label, new THREE.Mesh(geo.crimp, mats.crimp), new THREE.Mesh(geo.cap, mats.cap), new THREE.Mesh(geo.glass, mats.mask));
     if (mats.glassBack) {
       const back = new THREE.Mesh(geo.glass, mats.glassBack);
       back.renderOrder = 1;

@@ -58,7 +58,7 @@ Start here in the next session. This covers where the build stands, what is stil
   - Jumps take at least 0.28s per product with a sine ease, so swaps never show, even at 30fps.
 - **Range:** the row is placed by product index (always 01 to 12, centred), with the camera at `camZ: 26`. Phones show part of the row; the name list below covers all 12.
 - **Chrome:**
-  - The 01 / 12 counter was removed, since the hero track and walk rail already show position.
+  - The 01 / 12 counter was removed, since the hero track and walk rail already show position. Phones hide the rail, so since 2026-10-10 they show a small vertical 01 / 12 beside the walk vial.
   - The nav gets an Ink background, and the frame hides, over the closing sections.
 - **Labels:** they keep category, strength, volume and "Rx only", like most of the client's own renders.
 - **Visual direction:** the Impeccable concept roll was not run. The brand book plus the approved mockup pinned the look, and `DESIGN.md` records this.

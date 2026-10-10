@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  ROW_GAP, blendPose, carouselPose, focusPose, nearestSlotForProduct, productAtPos, rangePanLimit, rowPose, wrapOffset,
+  ROW_GAP, blendPose, carouselPose, focusPose, nearestSlotForProduct, focusYForBase, WALK_VIAL_HALF_HEIGHT, productAtPos, rangePanLimit, rowMagnify, rowPose, wrapOffset,
 } from '@/lib/stage/layout';
 import { DEFAULT_VALUES } from '@/lib/stage/values';
 
@@ -59,5 +59,31 @@ describe('rangePanLimit', () => {
     expect(limit).toBeGreaterThan(0);
     // Panned to the limit, the view edge reaches just past the outer vial's center.
     expect(limit + halfView).toBeCloseTo(5.5 * 1.5 + 0.9, 5);
+  });
+});
+
+describe('rowMagnify', () => {
+  it('peaks under the focus point and falls off symmetrically', () => {
+    expect(rowMagnify(0)).toBe(1);
+    expect(rowMagnify(1.5)).toBeCloseTo(rowMagnify(-1.5), 10);
+    expect(rowMagnify(1.5)).toBeLessThan(1);
+  });
+
+  it('leaves vials three or more slots away close to their resting size', () => {
+    expect(rowMagnify(3 * ROW_GAP)).toBeLessThan(0.05);
+  });
+});
+
+describe('focusYForBase', () => {
+  it('puts the vial base on the requested pixel row', () => {
+    const halfView = 12 * Math.tan((34 * Math.PI) / 360);
+    // Base at the vertical middle of the screen: the vial center sits half a vial above the camera line.
+    expect(focusYForBase(422, 844, 0, 12, 34)).toBeCloseTo(WALK_VIAL_HALF_HEIGHT, 6);
+    // Base on the bottom edge.
+    expect(focusYForBase(844, 844, 0, 12, 34)).toBeCloseTo(-halfView + WALK_VIAL_HALF_HEIGHT, 6);
+  });
+
+  it('moves the vial down as the base moves down the screen', () => {
+    expect(focusYForBase(500, 844, 0, 12, 34)).toBeLessThan(focusYForBase(400, 844, 0, 12, 34));
   });
 });

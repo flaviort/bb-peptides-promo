@@ -3,6 +3,8 @@ import * as THREE from 'three';
 // The full lineup's backdrop: a room of Light Blue grid lines receding from the camera, with an
 // Electric Blue scan band sweeping down its length. One full-screen quad drawn behind everything
 // in the scene; each pixel casts a ray from the camera and finds the wall, floor or ceiling it hits.
+// It sits on the far plane and skips every pixel a vial covers (the opaque parts by depth, the glass by
+// the stencil mask in Vial.ts), so the lines and the scan glow pass behind the products.
 
 const vertexShader = /* glsl */ `
 varying vec2 vUv;
@@ -89,8 +91,12 @@ export class GridRoom {
         uTilt: { value: this.tilt },
       },
       transparent: true,
-      depthTest: false,
+      depthTest: true,
       depthWrite: false,
+      stencilWrite: true,
+      stencilWriteMask: 0,
+      stencilRef: 1,
+      stencilFunc: THREE.NotEqualStencilFunc,
       // Premultiplied: the canvas is transparent over the CSS room, so alpha follows the light.
       blending: THREE.CustomBlending,
       blendSrc: THREE.OneFactor,

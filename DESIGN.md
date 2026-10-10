@@ -208,7 +208,9 @@ A 5 mL serum vial: reflection-only glass (additive blending, clearcoat, faint bl
 
 **Stardust** (`lib/stardust.ts`): a 2D canvas over the content layers, under the nav, about one speck per 11,000 px² of viewport. Each speck is a soft Electric Blue glow with a pale blue-white core; it wanders up to 24px, twinkles, and nearer specks are larger and brighter. It fades in on entering and fades out as soon as the page leaves the lineup for the reading sections.
 
-**Grid room** (`lib/stage/GridRoom.ts`): the full lineup's backdrop, after React Bits' Grid Scan. One full-screen quad drawn behind the vials casts a ray per pixel into a box room (half width 1.7, half height 1) gridded in Light Blue at 32%, fogged with depth. An Electric Blue scan band with a white core sweeps down the room's length in 3.2s every 5s, leaving a short trail on the lines, and the room tilts a few degrees toward the pointer. It fades in with the row and out as the camera drops into the closing page; with reduced motion the sweep stands still.
+**Grid room** (`lib/stage/GridRoom.ts`): the full lineup's backdrop, after React Bits' Grid Scan. One full-screen quad drawn behind the vials casts a ray per pixel into a box room (half width 1.7, half height 1) gridded in Light Blue at 32%, fogged with depth. An Electric Blue scan band with a white core sweeps down the room's length in 3.2s every 5s, leaving a short trail on the lines, and the room tilts a few degrees toward the pointer. It fades in with the row and out as the camera drops into the closing page; with reduced motion the sweep stands still. It sits on the far plane and skips every pixel a vial covers (depth for the label and cap, a stencil silhouette for the glass), so the lines and the scan pass behind the products.
+
+**Lineup magnifier** (`rowMagnify` in `lib/stage/layout.ts`): the row swells like a wave around a focus point, up to 1.3x at the peak and back to rest about three vials out, while the neighbours step aside. On desktop the focus follows the cursor; on touch screens it is the middle of the view, which a sideways swipe slides along the row.
 
 ## Do's and Don'ts
 

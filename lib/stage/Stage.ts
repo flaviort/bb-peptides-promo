@@ -8,7 +8,7 @@ import { Lights } from './Lights';
 import { GridRoom } from './GridRoom';
 import { createStudioScene } from './Studio';
 import { lightMix } from './walk';
-import { rangePanLimit } from './layout';
+import { focusYForBase, rangePanLimit } from './layout';
 
 export type { Quality };
 
@@ -19,6 +19,8 @@ export interface StageOptions {
   labelFont: string;
   background: string;
   reduced: boolean;
+  /** The range row swells under the cursor (a mouse) instead of around the middle of the view (touch). */
+  magnifyAtPointer?: boolean;
   onProgress?: (fraction: number) => void;
 }
 
@@ -48,11 +50,15 @@ export class Stage {
   // Sideways camera slide over the range row on narrow screens: the target the finger sets, and the eased value.
   private panTarget = 0;
   private pan = 0;
+  private rowFocusX = 0;
+  // Phones: the screen row (px from the top) the walk vial's base should sit on, and the eased focusY it gives.
+  private walkBase: number | null = null;
+  private walkY = NaN;
   private disposed = false;
 
   constructor(private readonly opts: StageOptions) {
     const { canvas, quality } = opts;
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, stencil: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, quality === 'high' ? 2 : 1.5));
     this.renderer.toneMapping = THREE.NeutralToneMapping;
     this.renderer.setClearColor(0x000000, 0);
@@ -129,6 +135,11 @@ export class Stage {
     this.panTarget = Math.min(limit, Math.max(-limit, this.panTarget - dxPx * worldPerPx));
   }
 
+  /** Phones pin the walk vial's base to a pixel row just under the product name; null keeps the keyframe focusY. */
+  setWalkBase(px: number | null) {
+    this.walkBase = px;
+  }
+
   resetRangePan() {
     this.panTarget = 0;
   }
@@ -174,10 +185,22 @@ export class Stage {
     s.stageLight = v.stageLight * k;
     s.key = v.key * k;
     s.rim = v.rim * k;
+    const h = this.opts.canvas.clientHeight;
+    if (this.walkBase !== null && h) {
+      const y = focusYForBase(this.walkBase, h, s.camY, s.camZ, s.fov);
+      this.walkY = Number.isNaN(this.walkY) ? y : this.walkY + (y - this.walkY) * (1 - Math.exp(-dt * 6));
+      s.focusY = this.walkY;
+    } else {
+      this.walkY = NaN;
+    }
 
     // The slide eases toward the finger, and only applies while the row is up.
     this.pan += (this.panTarget - this.pan) * (1 - Math.exp(-dt * 12));
-    this.camera.position.set(s.camX + this.pan * s.row, s.camY, s.camZ);
+    const camX = s.camX + this.pan * s.row;
+    this.camera.position.set(camX, s.camY, s.camZ);
+    const halfView = s.camZ * Math.tan(THREE.MathUtils.degToRad(s.fov / 2)) * this.camera.aspect;
+    const focusTarget = camX + (this.opts.magnifyAtPointer ? this.pointer.x * 2 * halfView : 0);
+    this.rowFocusX += (focusTarget - this.rowFocusX) * (1 - Math.exp(-dt * 8));
     this.camera.rotation.set(s.camRotX, 0, s.camRotZ);
     if (this.camera.fov !== s.fov) {
       this.camera.fov = s.fov;
@@ -187,7 +210,7 @@ export class Stage {
     this.fog.far = s.fogFar;
     this.renderer.toneMappingExposure = s.exposure;
     this.lights.apply(s, dt, lightMix(s.walk, CATEGORIES_IN_ORDER));
-    this.carousel.update(dt, s, { mx: this.pointer.x, my: this.pointer.y });
+    this.carousel.update(dt, s, { mx: this.pointer.x, my: this.pointer.y, rowFocusX: this.rowFocusX });
     // The grid room belongs to the lineup row, and leaves as the camera drops into the closing page.
     this.grid.update(dt, s.row * (1 - Math.min(1, Math.max(0, -s.camY / 4))), this.camera, this.pointer);
     this.renderer.render(this.scene, this.camera);

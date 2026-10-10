@@ -64,7 +64,11 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
       const font = await labelFont();
       const { Stage } = await import('./stage/Stage');
       if (late) throw new Error('timeout');
-      s = new Stage({ canvas, quality, labelFont: font, background: INK, reduced, onProgress: (f) => progress.update('models', f) });
+      s = new Stage({
+        canvas, quality, labelFont: font, background: INK, reduced,
+        magnifyAtPointer: matchMedia('(hover: hover) and (pointer: fine)').matches,
+        onProgress: (f) => progress.update('models', f),
+      });
       await s.load();
       if (late) {
         s.dispose();
@@ -113,7 +117,26 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
   });
   pager.lenis.on('scroll', ScrollTrigger.update);
 
+  // Phones stack the product panel under the walk vial: pin the vial's base half a line below the top
+  // of the product name, so the name always overlaps it a little whatever the panel's height.
+  const placeWalkVial = () => {
+    if (!stage) return;
+    if (!mobileQuery.matches) return stage.setWalkBase(null);
+    const stack = document.querySelector<HTMLElement>('.product-stack');
+    const panel = stack?.lastElementChild as HTMLElement | null | undefined;
+    const name = panel?.querySelector<HTMLElement>('.product-name');
+    if (!stack || !panel || !name) return;
+    stage.setWalkBase(stack.getBoundingClientRect().bottom - panel.offsetHeight + name.offsetHeight * 0.5);
+  };
+  let placeFrame = 0;
+  // After React has rendered the new panel.
+  const placeSoon = () => {
+    cancelAnimationFrame(placeFrame);
+    placeFrame = requestAnimationFrame(() => (placeFrame = requestAnimationFrame(placeWalkVial)));
+  };
+
   const onResize = () => {
+    placeSoon();
     pager.measure();
     stage?.resize();
     dust.resize();
@@ -130,6 +153,7 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
   cleanups.push(() => {
     removeEventListener('resize', onResize);
     mobileQuery.removeEventListener('change', onBreakpoint);
+    cancelAnimationFrame(placeFrame);
   });
 
   // Frame loop: Lenis first so the timeline reads this frame's scroll. Once the closing sections
@@ -268,6 +292,7 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
     const p = prev;
     prev = s;
     if (s.product !== p.product && s.productSource === 'ui') stage?.setProduct(s.product);
+    if (s.product !== p.product || (s.entered && !p.entered)) placeSoon();
     if (s.section !== p.section && p.section === RANGE) {
       stage?.setHover(null);
       stage?.resetRangePan();
@@ -278,6 +303,7 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
   });
   // A remount (dev strict mode, HMR) can find the store already entered.
   const initial = store.get();
+  placeSoon();
   if (initial.entered) enter();
   else if (initial.ready && debug.skipIntro) store.set({ entered: true });
 

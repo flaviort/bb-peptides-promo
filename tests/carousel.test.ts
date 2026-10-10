@@ -149,3 +149,31 @@ describe('paged jumps at 30fps (the mobile floor)', () => {
     });
   }
 });
+
+describe('range row magnifier', () => {
+  const rowValues = (): SceneValues => ({ ...DEFAULT_VALUES, walk: 12, focus: 0, row: 1 });
+
+  it('makes the vial under the focus point the biggest, and follows the focus', () => {
+    const { c, models } = setup(false);
+    // Product 03 sits 3.5 slots left of the row's center.
+    const x03 = (2 - (N - 1) / 2) * 1.5;
+    c.update(1 / 60, rowValues(), { mx: 0, my: 0, rowFocusX: x03 });
+    const scales = models.map((m) => m.group.scale.x);
+    expect(scales.indexOf(Math.max(...scales))).toBe(2);
+    expect(scales[2]).toBeGreaterThan(scales[0]);
+
+    c.update(1 / 60, rowValues(), { mx: 0, my: 0, rowFocusX: 0 });
+    const centered = models.map((m) => m.group.scale.x);
+    // Centered between 06 and 07, those two swell together.
+    expect(centered[5]).toBeCloseTo(centered[6], 6);
+    expect(centered[5]).toBeGreaterThan(centered[2]);
+  });
+
+  it('leaves the hero ring alone', () => {
+    const { c, models } = setup(false);
+    c.update(1 / 60, { ...DEFAULT_VALUES, walk: -1, focus: 0, row: 0 }, { mx: 0, my: 0, rowFocusX: 0 });
+    const far = models[11].group.scale.x;
+    c.update(1 / 60, { ...DEFAULT_VALUES, walk: -1, focus: 0, row: 0 }, { mx: 0, my: 0, rowFocusX: 9 });
+    expect(models[11].group.scale.x).toBe(far);
+  });
+});

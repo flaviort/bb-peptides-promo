@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState, type CSSProperties } from 'react';
-import { CATEGORIES, PRODUCTS, productUrl, type Product } from '@/lib/products';
+import { CATEGORIES, PRODUCTS, PRODUCT_COUNT, pad2, productUrl, type Product } from '@/lib/products';
 import { FIRST_PRODUCT, LAST_PRODUCT, WALK_SECTIONS, productForSection } from '@/lib/scroll/sections';
 import { goToSection } from '@/lib/scroll/instance';
 import { store, useApp } from '@/lib/store';
@@ -83,6 +83,12 @@ export function ProductLayer() {
             {!webgl && <Image className="product-fallback" src={p.render} alt={`${p.name} vial`} width={320} height={640} />}
             <PanelStack index={index} show={active} />
             <ProductRail current={index} />
+            {/* Phones hide the rail, so they get a plain position counter beside the vial instead. */}
+            <p className="product-count" aria-hidden="true">
+              <span>{pad2(index + 1)}</span>
+              <i />
+              <span>{pad2(PRODUCT_COUNT)}</span>
+            </p>
           </>
         )}
       </Layer>

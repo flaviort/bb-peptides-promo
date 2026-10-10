@@ -181,6 +181,8 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 
 /* Menu */
 .menu-toggle { position: relative; z-index: 2; justify-self: start; display: inline-flex; align-items: center; gap: 12px; min-height: 48px; font-size: 14px; font-weight: 500; }
+/* On phones the label is screen-reader only, so the icon alone would be a 14px target: widen the hit area, not the icon. */
+@media (max-width: 640px) { .menu-toggle { min-width: 48px; margin-left: -14px; padding-left: 14px; } }
 .menu-squares { display: grid; grid-template-columns: repeat(2, 5px); gap: 4px; }
 .menu-squares i { width: 5px; height: 5px; background: #fff; transition: transform 0.3s var(--ease-out-5), opacity 0.3s; }
 .menu-toggle[aria-expanded="true"] .menu-squares i:nth-child(2),
@@ -287,11 +289,21 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
   .product-rail button:not([aria-current="true"]):hover::after { transform: scaleX(0.4); }
 }
 .rail-num { width: 18px; font-size: 11px; font-variant-numeric: tabular-nums; }
+.product-count { display: none; }
 .product-fallback { position: absolute; left: 50%; top: 52%; height: 56vh; width: auto; transform: translate(-50%, -50%) rotate(-12deg); }
 @media (max-width: 860px) {
   .product-rail { display: none; }
   .product-ghost { top: 24%; }
   .product-stack { left: 20px; right: 20px; top: auto; bottom: 24px; width: auto; transform: none; }
+  /* The outgoing panel stays in the stack while it leaves; pin the new one to the bottom so the
+     button lands on the same spot for every product, however long its description. */
+  .product-stack > * { align-self: end; }
+  .product-count {
+    position: absolute; right: 20px; top: 34%; display: flex; flex-direction: column; align-items: center; gap: 10px;
+    font-size: 12px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+  .product-count span:first-child { color: #fff; }
+  .product-count i { width: 1px; height: 28px; background: var(--color-electric); box-shadow: 0 0 8px rgb(59 96 255 / 0.9); }
   .product-panel { gap: 12px; }
   /* The benefit tags stay on desktop; on a phone they push the panel up into the vial. */
   .product-focus { display: none; }
