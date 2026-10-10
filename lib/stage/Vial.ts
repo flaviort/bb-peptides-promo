@@ -61,7 +61,8 @@ export interface VialMaterials {
 // the Ink page and its light pools show through. Transmission would render the transparent page as black.
 function glassMaterial(high: boolean, side: THREE.Side, intensity: number): THREE.Material {
   const common = {
-    color: 0x000000, roughness: 0.04, metalness: 0, envMapIntensity: intensity,
+    // A faint blue body tint, added on top of the page, so the glass reads as lit glass rather than dark chrome.
+    color: side === THREE.FrontSide ? 0x0a1028 : 0x000000, roughness: 0.04, metalness: 0, envMapIntensity: intensity,
     transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side,
   };
   return high
@@ -71,7 +72,7 @@ function glassMaterial(high: boolean, side: THREE.Side, intensity: number): THRE
 
 export function createVialMaterials(quality: Quality): VialMaterials {
   const high = quality === 'high';
-  const glass = glassMaterial(high, THREE.FrontSide, 1.1);
+  const glass = glassMaterial(high, THREE.FrontSide, 0.8);
   const glassBack = high ? glassMaterial(true, THREE.BackSide, 0.45) : null;
   const crimp = new THREE.MeshStandardMaterial({ color: 0xd9dde4, metalness: 1, roughness: 0.22 });
   const cap = high

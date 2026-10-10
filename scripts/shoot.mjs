@@ -1,6 +1,6 @@
 // QA screenshots over the Chrome DevTools protocol (Node 22, no dependencies).
 // Needs a build made with NEXT_PUBLIC_DEBUG=1 so the debug URL params work.
-// Env: CHROME, BASE, OUT, SECTIONS, FLAVORS, VIEWPORTS (comma list of names), TIMEOUT (ms to wait for the
+// Env: CHROME, BASE, OUT, SECTIONS, VIEWPORTS (comma list of names), TIMEOUT (ms to wait for the
 // preloader to leave), SETTLE (ms after it leaves, for reveals and textures).
 import { spawn } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -13,11 +13,10 @@ const OUT = process.env.OUT ?? 'qa/shots';
 const TIMEOUT = Number(process.env.TIMEOUT ?? 20000);
 const SETTLE = Number(process.env.SETTLE ?? 3000);
 const PORT = Number(process.env.CDP_PORT ?? 9334);
-const ALL_VIEWPORTS = { desktop: [1440, 900], wide: [1920, 1080], mobile: [390, 844], laptop: [1280, 800] };
+const ALL_VIEWPORTS = { desktop: [1440, 900], wide: [1920, 1080], mobile: [390, 844], laptop: [1280, 800], og: [1200, 630] };
 const DEFAULT_VIEWPORTS = 'desktop,wide,mobile'; // laptop is opt-in through VIEWPORTS
 const VIEWPORTS = (process.env.VIEWPORTS ?? DEFAULT_VIEWPORTS).split(',');
-const SECTIONS = (process.env.SECTIONS ?? 'hero,profile,benefit-1,benefit-2,benefit-3,benefit-4,statement,range,faq').split(',');
-const FLAVORS = (process.env.FLAVORS ?? 'mango,peach,lemonade,cherry').split(',');
+const SECTIONS = (process.env.SECTIONS ?? 'hero,p01,p03,p05,p08,p12,range,closing').split(',');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -59,7 +58,7 @@ function client(url) {
 }
 
 mkdirSync(OUT, { recursive: true });
-const profile = mkdtempSync(join(tmpdir(), 'hiatus-shoot-'));
+const profile = mkdtempSync(join(tmpdir(), 'bbp-shoot-'));
 const chrome = spawn(
   CHROME,
   [
@@ -79,28 +78,26 @@ try {
     const [w, h] = ALL_VIEWPORTS[vp];
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false });
     for (const sec of SECTIONS) {
-      for (const fl of FLAVORS) {
-        const file = `${OUT}/${vp}-${sec}-${fl}.png`;
-        try {
-          await cdp.send('Page.navigate', { url: `${BASE}/?gate=skip&section=${sec}&flavor=${fl}` });
-          await sleep(500);
-          const until = Date.now() + TIMEOUT;
-          for (;;) {
-            const { result } = await cdp.send('Runtime.evaluate', {
-              expression: "document.readyState === 'complete' && !document.querySelector('.preloader')",
-            });
-            if (result.value === true) break;
-            if (Date.now() > until) throw new Error('preloader still on screen');
-            await sleep(250);
-          }
-          await sleep(SETTLE);
-          const { data } = await cdp.send('Page.captureScreenshot', { format: 'png' });
-          writeFileSync(file, Buffer.from(data, 'base64'));
-          console.log(file);
-        } catch (err) {
-          failed++;
-          console.error(`${file}: ${err.message}`);
+      const file = `${OUT}/${vp}-${sec}.png`;
+      try {
+        await cdp.send('Page.navigate', { url: `${BASE}/?intro=skip&section=${sec}` });
+        await sleep(500);
+        const until = Date.now() + TIMEOUT;
+        for (;;) {
+          const { result } = await cdp.send('Runtime.evaluate', {
+            expression: "document.readyState === 'complete' && !document.querySelector('.preloader')",
+          });
+          if (result.value === true) break;
+          if (Date.now() > until) throw new Error('preloader still on screen');
+          await sleep(250);
         }
+        await sleep(SETTLE);
+        const { data } = await cdp.send('Page.captureScreenshot', { format: 'png' });
+        writeFileSync(file, Buffer.from(data, 'base64'));
+        console.log(file);
+      } catch (err) {
+        failed++;
+        console.error(`${file}: ${err.message}`);
       }
     }
   }

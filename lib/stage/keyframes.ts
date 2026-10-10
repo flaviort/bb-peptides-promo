@@ -9,7 +9,7 @@ const SOLO: Patch = { focus: 1, sideFade: 1, rigY: 1, fogNear: 30, fogFar: 60 };
 // One vial centered, a slight forward lean and a three-quarter tilt, the panel on its left.
 // focusRotY stays near 0 so a half turn always puts the label straight away from the camera.
 const WALK: Patch = {
-  ...SOLO, camY: 0, camZ: 6.4, fov: 34, stageLight: 0.9, key: 1.1, rim: 1.6, accent: 0.4, mouse: 0.25,
+  ...SOLO, camY: 0, camZ: 7.4, fov: 34, stageLight: 0.9, key: 1.1, rim: 1.6, accent: 0.4, mouse: 0.25,
   focusX: 0, focusY: -0.15, focusRotX: deg(8), focusRotY: deg(-8), focusRotZ: deg(-12),
 };
 

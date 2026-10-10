@@ -3,6 +3,7 @@
 import { CATEGORIES, PRODUCTS } from '@/lib/products';
 import { RANGE, productForSection } from '@/lib/scroll/sections';
 import { useApp } from '@/lib/store';
+import { cn } from '@/lib/cn';
 
 // The Ink room. Which floor pool is lit follows the category on screen (spec 4.5).
 export function Backdrop() {
@@ -17,6 +18,12 @@ export function Backdrop() {
       <div className="pool pool--beam" />
       <div className="pool pool--range" />
       <div className="backdrop-grid" />
+      {/* The hero's lamp, beam and floor line, from the approved brand sample. */}
+      <div className={cn('hero-light', section === 0 && 'is-on')}>
+        <i className="hero-beam" />
+        <i className="hero-lamp" />
+        <i className="hero-floor" />
+      </div>
     </div>
   );
 }

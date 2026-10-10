@@ -68,11 +68,39 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
     radial-gradient(26% 70% at 50% 0%, rgb(137 181 252 / 0.2) 0%, transparent 80%),
     radial-gradient(36% 30% at 50% 100%, rgb(59 96 255 / 0.3) 0%, transparent 70%);
 }
+.hero-light { opacity: 0; transition: opacity 0.8s var(--ease-out-3); }
+.hero-light.is-on { opacity: 1; }
+.hero-light > i { position: absolute; display: block; }
+.hero-beam {
+  left: 50%; top: 0; width: min(46vw, 560px); height: 74%; transform: translateX(-50%);
+  background: linear-gradient(180deg, rgb(137 181 252 / 0.3) 0%, rgb(59 96 255 / 0.14) 45%, transparent 100%);
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); filter: blur(18px);
+}
+.hero-lamp {
+  left: 50%; top: 118px; width: clamp(120px, 12vw, 170px); height: 6px; transform: translateX(-50%); background: var(--color-light-blue);
+  box-shadow: 0 0 24px 6px rgb(137 181 252 / 0.55), 0 10px 60px 20px rgb(59 96 255 / 0.35);
+}
+.hero-floor { left: 0; right: 0; top: 71%; height: 1px; background: linear-gradient(90deg, transparent, rgb(137 181 252 / 0.35) 30%, rgb(137 181 252 / 0.35) 70%, transparent); }
+@media (max-width: 640px) { .hero-lamp { top: 92px; } .hero-floor { top: 62%; } }
 .pool--range { background: radial-gradient(80% 45% at 50% 55%, rgb(59 96 255 / 0.28) 0%, transparent 70%); }
 .backdrop[data-light="electric"] .pool--electric,
 .backdrop[data-light="light"] .pool--light,
 .backdrop[data-light="beam"] .pool--beam,
-.backdrop[data-light="range"] .pool--range { opacity: 1; }
+.backdrop[data-light="range"] .hero-light { opacity: 0; transition: opacity 0.8s var(--ease-out-3); }
+.hero-light.is-on { opacity: 1; }
+.hero-light > i { position: absolute; display: block; }
+.hero-beam {
+  left: 50%; top: 0; width: min(46vw, 560px); height: 74%; transform: translateX(-50%);
+  background: linear-gradient(180deg, rgb(137 181 252 / 0.3) 0%, rgb(59 96 255 / 0.14) 45%, transparent 100%);
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); filter: blur(18px);
+}
+.hero-lamp {
+  left: 50%; top: 118px; width: clamp(120px, 12vw, 170px); height: 6px; transform: translateX(-50%); background: var(--color-light-blue);
+  box-shadow: 0 0 24px 6px rgb(137 181 252 / 0.55), 0 10px 60px 20px rgb(59 96 255 / 0.35);
+}
+.hero-floor { left: 0; right: 0; top: 71%; height: 1px; background: linear-gradient(90deg, transparent, rgb(137 181 252 / 0.35) 30%, rgb(137 181 252 / 0.35) 70%, transparent); }
+@media (max-width: 640px) { .hero-lamp { top: 92px; } .hero-floor { top: 62%; } }
+.pool--range { opacity: 1; }
 .backdrop-grid {
   background-image:
     linear-gradient(to right, rgb(255 255 255 / 0.045) 1px, transparent 1px),
@@ -213,7 +241,7 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 }
 @media (max-width: 640px) {
   .frame { inset: 80px 16px 20px; }
-  .frame-count { transform: translate(40%, -50%); }
+  .frame-count { display: none; }
 }
 
 /* Hero */
@@ -229,10 +257,10 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 .hero-track { display: flex; gap: 6px; }
 .hero-track button { position: relative; width: 22px; height: 24px; }
 .hero-track button::before {
-  content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; transform: translateY(-50%);
-  background: rgb(255 255 255 / 0.22); transition: background-color 0.3s, height 0.3s;
+  content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 4px; transform: translateY(-50%) scaleY(0.5);
+  background: rgb(255 255 255 / 0.22); transition: background-color 0.3s, transform 0.3s var(--ease-out-5);
 }
-.hero-track button[aria-pressed="true"]::before { height: 4px; background: var(--color-electric); box-shadow: 0 0 12px rgb(59 96 255 / 0.9); }
+.hero-track button[aria-pressed="true"]::before { transform: translateY(-50%); background: var(--color-electric); box-shadow: 0 0 12px rgb(59 96 255 / 0.9); }
 @media (hover: hover) { .hero-track button:not([aria-pressed="true"]):hover::before { background: rgb(255 255 255 / 0.6); } }
 .hero-hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
 .hero-hint-line { position: relative; width: 1px; height: 22px; overflow: hidden; background: var(--hair-strong); }
@@ -272,12 +300,12 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 .product-rail { position: absolute; right: calc(var(--gutter) + 28px); top: 50%; transform: translateY(-50%); }
 .product-rail ol { display: flex; flex-direction: column; gap: 2px; text-align: right; }
 .product-rail button { display: inline-flex; align-items: center; justify-content: flex-end; gap: 12px; min-height: 28px; font-size: 13px; color: rgb(255 255 255 / 0.5); transition: color 0.2s; }
-.product-rail button::after { content: ""; width: 0; height: 1px; background: var(--color-electric); transition: width 0.35s var(--ease-out-5); }
+.product-rail button::after { content: ""; width: 20px; height: 1px; background: var(--color-electric); transform: scaleX(0); transform-origin: 100% 50%; transition: transform 0.35s var(--ease-out-5); }
 .product-rail button[aria-current="true"] { color: #fff; }
-.product-rail button[aria-current="true"]::after { width: 20px; }
+.product-rail button[aria-current="true"]::after { transform: scaleX(1); }
 @media (hover: hover) {
   .product-rail button:hover { color: rgb(255 255 255 / 0.85); }
-  .product-rail button:not([aria-current="true"]):hover::after { width: 8px; }
+  .product-rail button:not([aria-current="true"]):hover::after { transform: scaleX(0.4); }
 }
 .rail-num { width: 18px; font-size: 11px; font-variant-numeric: tabular-nums; }
 .product-fallback { position: absolute; left: 50%; top: 52%; height: 56vh; width: auto; transform: translate(-50%, -50%) rotate(-12deg); }
