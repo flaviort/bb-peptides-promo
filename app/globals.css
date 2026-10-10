@@ -41,10 +41,12 @@ html.lenis, html.lenis body { height: auto; }
 
 /* Stage */
 .stage-canvas {
-  position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; touch-action: pan-y;
+  position: fixed; inset: 0; width: 100%; height: 100%; z-index: 2; touch-action: pan-y;
   transition: opacity 0.6s var(--ease-out-3);
 }
 .stage-canvas.is-off { opacity: 0; }
+/* Stardust (lib/stardust.ts) floats in front of the stage and its copy, under the nav and menu. */
+.dust-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
 body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 .spacer { height: 125vh; }
 .spacer--short { height: 90vh; }
@@ -72,15 +74,23 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 .hero-light.is-on { opacity: 1; }
 .hero-light > i { position: absolute; display: block; }
 .hero-beam {
-  left: 50%; top: 0; width: min(46vw, 560px); height: 74%; transform: translateX(-50%);
-  background: linear-gradient(180deg, rgb(137 181 252 / 0.3) 0%, rgb(59 96 255 / 0.14) 45%, transparent 100%);
-  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); filter: blur(18px);
+  left: 50%; top: 0; width: min(52vw, 640px); height: 80%; transform: translateX(-50%);
+  /* The blur sits on the box and the clip on its child: a clip applied after a blur cuts the edge hard again. */
+  filter: blur(28px);
+  mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
+}
+.hero-beam::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgb(137 181 252 / 0.3) 0%, rgb(59 96 255 / 0.13) 50%, transparent 100%);
+  clip-path: polygon(40% 0, 60% 0, 92% 100%, 8% 100%);
 }
 .hero-lamp {
-  left: 50%; top: 118px; width: clamp(120px, 12vw, 170px); height: 6px; transform: translateX(-50%); background: var(--color-light-blue);
-  box-shadow: 0 0 24px 6px rgb(137 181 252 / 0.55), 0 10px 60px 20px rgb(59 96 255 / 0.35);
+  left: 50%; top: 118px; width: clamp(120px, 12vw, 170px); height: 4px; transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgb(137 181 252 / 0.85) 18%, rgb(220 232 255 / 0.95) 50%, rgb(137 181 252 / 0.85) 82%, transparent);
+  filter: blur(0.6px);
+  box-shadow: 0 0 22px 4px rgb(137 181 252 / 0.32), 0 12px 70px 24px rgb(59 96 255 / 0.2);
 }
-.hero-floor { left: 0; right: 0; top: 71%; height: 1px; background: linear-gradient(90deg, transparent, rgb(137 181 252 / 0.35) 30%, rgb(137 181 252 / 0.35) 70%, transparent); }
+.hero-floor { left: 0; right: 0; top: 71%; height: 1px; background: linear-gradient(90deg, transparent, rgb(137 181 252 / 0.22) 30%, rgb(137 181 252 / 0.22) 70%, transparent); }
 @media (max-width: 640px) { .hero-lamp { top: 92px; } .hero-floor { top: 62%; } }
 .pool--range { background: radial-gradient(80% 45% at 50% 55%, rgb(59 96 255 / 0.28) 0%, transparent 70%); }
 .backdrop[data-light="electric"] .pool--electric,
@@ -101,6 +111,7 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
   position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0; visibility: hidden;
   transition: opacity 0.45s var(--ease-out-3), visibility 0s linear 0.45s;
 }
+.layer--back { z-index: 1; }
 .layer.is-active { opacity: 1; visibility: visible; transition-delay: 0s; }
 .layer :is(a, button) { pointer-events: auto; }
 
@@ -203,21 +214,11 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
   .menu-grid { grid-template-columns: 1fr; gap: 24px; }
 }
 
-/* Frame */
-.frame { position: fixed; inset: 120px var(--gutter) 40px; z-index: 4; pointer-events: none; opacity: 0; transition: opacity 0.8s var(--ease-out-3) 0.5s; }
-.frame.is-in { opacity: 1; }
-.frame-corner { position: absolute; width: 14px; height: 14px; border: 0 solid var(--hair-strong); }
-.frame-corner.tl { top: 0; left: 0; border-top-width: 1px; border-left-width: 1px; }
-.frame-corner.tr { top: 0; right: 0; border-top-width: 1px; border-right-width: 1px; }
-.frame-corner.bl { bottom: 0; left: 0; border-bottom-width: 1px; border-left-width: 1px; }
-.frame-corner.br { bottom: 0; right: 0; border-bottom-width: 1px; border-right-width: 1px; }
+/* Progress line */
 .progress-line { position: fixed; inset: 0 0 auto 0; z-index: 7; height: 2px; pointer-events: none; }
 .progress-line i {
   display: block; height: 100%; background: var(--color-electric); transform-origin: 0 50%;
   transform: scaleX(var(--progress)); box-shadow: 0 0 10px rgb(59 96 255 / 0.9);
-}
-@media (max-width: 640px) {
-  .frame { inset: 80px 16px 20px; }
 }
 
 /* Hero */
@@ -292,7 +293,6 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
   .product-stack { left: 20px; right: 20px; top: auto; bottom: 24px; width: auto; transform: none; }
   .product-panel { gap: 14px; }
   .product-about { font-size: 15px; }
-  .product-actions .btn-outline { display: none; }
   .product-specs > div { grid-template-columns: 80px 1fr; padding: 9px 0; }
   .product-fallback { top: 24%; height: 30vh; }
 }

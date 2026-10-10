@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState, type CSSProperties } from 'react';
-import { ASSESSMENT_URL, CATEGORIES, PRODUCTS, productUrl, type Product } from '@/lib/products';
+import { CATEGORIES, PRODUCTS, productUrl, type Product } from '@/lib/products';
 import { FIRST_PRODUCT, LAST_PRODUCT, WALK_SECTIONS, productForSection } from '@/lib/scroll/sections';
 import { goToSection } from '@/lib/scroll/instance';
 import { store, useApp } from '@/lib/store';
@@ -33,7 +33,6 @@ function ProductPanel({ p, show, delay, current }: { p: Product; show: boolean; 
           <RollLabel text="View product" />
           <IconArrow />
         </a>
-        <a className="btn btn-outline" href={ASSESSMENT_URL} target="_blank" rel="noreferrer">Start assessment</a>
       </div>
     </article>
   );
@@ -73,15 +72,20 @@ export function ProductLayer() {
   }, [section]);
 
   return (
-    <Layer indices={WALK_SECTIONS} label="Product details">
-      {(active) => (
-        <>
-          <p className="product-ghost" aria-hidden="true">{p.short}</p>
-          {!webgl && <Image className="product-fallback" src={p.render} alt={`${p.name} vial`} width={320} height={640} />}
-          <PanelStack index={index} show={active} />
-          <ProductRail current={index} />
-        </>
-      )}
-    </Layer>
+    <>
+      {/* The outlined name sits behind the vial, so it gets a layer under the canvas. */}
+      <Layer indices={WALK_SECTIONS} back>
+        {() => <p className="product-ghost">{p.short}</p>}
+      </Layer>
+      <Layer indices={WALK_SECTIONS} label="Product details">
+        {(active) => (
+          <>
+            {!webgl && <Image className="product-fallback" src={p.render} alt={`${p.name} vial`} width={320} height={640} />}
+            <PanelStack index={index} show={active} />
+            <ProductRail current={index} />
+          </>
+        )}
+      </Layer>
+    </>
   );
 }

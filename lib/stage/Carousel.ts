@@ -4,7 +4,17 @@ import type { SceneValues } from './values';
 import {
   blendPose, carouselPose, focusPose, nearestSlotForProduct, productAtPos, rowPose, wrapOffset, type Pose,
 } from './layout';
-import { dipScale, facesAway, labelTarget, spinAngle, spinPhase } from './walk';
+import { TAU, dipScale, facesAway, labelTarget, spinAngle, spinPhase } from './walk';
+
+const LABEL_FRONT = new THREE.Vector3();
+
+/** How directly a vial's label faces the camera: 1 toward it, -1 straight away. */
+export function labelToward(group: THREE.Object3D): number {
+  return LABEL_FRONT.set(0, 0, 1).applyQuaternion(group.quaternion).z;
+}
+
+/** Turns the vial makes on a jump between products, however many it skips. */
+export const JUMP_TURNS = 2;
 
 export interface FrameInput { mx: number; my: number }
 export interface CarouselOptions { reduced: boolean }
@@ -15,6 +25,8 @@ export class Carousel {
   target = 0;
   /** Product index hovered in the range row, or null. */
   hover: number | null = null;
+  /** A product to product jump in flight (product indices), set by the pager. */
+  jump: { from: number; to: number } | null = null;
   private time = 0;
   private center = 0;
   private prevWalk: number | null = null;
@@ -55,10 +67,21 @@ export class Carousel {
     this.pos += (this.target - this.pos) * (1 - Math.exp(-dt * 5));
     const n = this.models.length;
     const reduced = this.opts.reduced;
+    // The spin follows the walk, one turn per product. A jump instead makes JUMP_TURNS over the whole
+    // move and swaps the label once, straight to the destination, at its first half turn.
+    let sw = v.walk;
+    let jumpLabel: number | null = null;
+    const j = this.jump;
+    if (j && j.to !== j.from) {
+      const u = Math.min(1, Math.max(0, (v.walk - j.from) / (j.to - j.from)));
+      const turned = JUMP_TURNS * u;
+      sw = j.from + Math.sign(j.to - j.from) * turned;
+      jumpLabel = turned < 0.5 ? j.from : j.to;
+    }
     // A frame that crosses a half turn swaps at once, so even a coarse frame lands on the right label.
     // The first frame has shown nothing yet, so it may set any label (a deep link straight into the walk).
-    const crossed = this.prevWalk === null || Math.round(this.prevWalk) !== Math.round(v.walk);
-    this.prevWalk = v.walk;
+    const crossed = this.prevWalk === null || Math.round(this.prevWalk) !== Math.round(sw);
+    this.prevWalk = sw;
 
     let best = Infinity;
     for (let i = 0; i < n; i++) {
@@ -73,6 +96,7 @@ export class Carousel {
       // Idle wobble keeps each label mostly facing front instead of spinning away. The row holds still.
       if (!reduced) pose.ry += Math.sin(this.time * 0.4 + i * 1.7) * 0.5 * (1 - v.row);
       let scale = 1;
+      let spin = 0;
       const w = i === this.center ? v.focus * (1 - Math.min(1, Math.abs(o) * 2)) : 0;
       if (i === this.center) {
         if (w > 0) {
@@ -80,11 +104,13 @@ export class Carousel {
           if (reduced) {
             scale = 1 + (dipScale(v.walk) - 1) * w;
           } else {
-            // The spin is added after the blend, so it completes even while focus fades in or out.
-            const phase = spinPhase(v.walk) * w;
-            pose.ry += spinAngle(v.walk);
-            pose.y -= 0.12 * phase;
-            pose.rz *= 1 - 0.5 * phase;
+            // The spin is applied after the blend, so it completes even while focus fades in or out.
+            // It turns the vial about its own long axis, so it spins in place without moving or tilting.
+            spin = spinAngle(sw);
+            // A tiny rock while it turns (under 1 degree at mid spin), rotation only so it stays put.
+            const phase = spinPhase(sw) * w;
+            pose.rz += Math.sin(TAU * 2 * sw) * 0.015 * phase;
+            pose.rx += Math.sin(TAU * 3 * sw) * 0.008 * phase;
           }
         }
       } else {
@@ -105,11 +131,12 @@ export class Carousel {
       const m = this.models[i];
       m.group.position.set(pose.x, pose.y, pose.z);
       m.group.rotation.set(pose.rx, pose.ry, pose.rz);
+      if (spin) m.group.rotateY(spin);
       m.group.scale.setScalar(scale);
 
-      const target = w > 0 ? labelTarget(v.walk, i, n) : i;
+      const target = w > 0 ? jumpLabel ?? labelTarget(v.walk, i, n) : i;
       if (target !== m.labelIndex) {
-        const hidden = w === 0 || crossed || (reduced ? dipScale(v.walk) < 0.4 : facesAway(pose.ry));
+        const hidden = w === 0 || crossed || (reduced ? dipScale(v.walk) < 0.4 : facesAway(labelToward(m.group)));
         if (hidden) m.setLabel(target);
       }
     }

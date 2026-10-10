@@ -42,10 +42,10 @@ describe('reduced-motion dip', () => {
 
 describe('facesAway', () => {
   it('is true only when the label points away from the camera', () => {
-    expect(facesAway(Math.PI)).toBe(true);
-    expect(facesAway(3 * Math.PI)).toBe(true);
+    expect(facesAway(-1)).toBe(true);
+    expect(facesAway(-0.5)).toBe(true);
+    expect(facesAway(1)).toBe(false);
     expect(facesAway(0)).toBe(false);
-    expect(facesAway(Math.PI / 2)).toBe(false);
   });
 });
 

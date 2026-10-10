@@ -3,6 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { PRODUCTS, productUrl } from './products';
 import { store } from './store';
 import { createProgress } from './progress';
+import { Stardust } from './stardust';
 import { readDebug } from './debug';
 import { withTimeout } from './timeout';
 import { isTap, type Point } from './tap';
@@ -35,7 +36,7 @@ async function labelFont(): Promise<string> {
   return family;
 }
 
-export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
+export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElement): Promise<() => void> {
   gsap.registerPlugin(ScrollTrigger);
   const cleanups: (() => void)[] = [];
   const debug = readDebug();
@@ -44,6 +45,7 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
   const quality: Quality = mobileQuery.matches || (navigator.hardwareConcurrency ?? 8) <= 4 ? 'low' : 'high';
 
   if (debug.product !== null) store.set({ product: debug.product, productSource: 'ui' });
+  const dust = new Stardust(dustCanvas, reduced);
 
   // Loading
   const progress = createProgress({ models: 3, fonts: 1 }, (v) => {
@@ -87,6 +89,7 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
   // Scroll
   const pager = new Pager({
     paging: !reduced,
+    onJump: (j) => stage?.setJump(j),
     onSection: (i) => {
       store.set({ section: i });
       // Without the stage, the section alone decides which product the walk shows.
@@ -113,6 +116,7 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
   const onResize = () => {
     pager.measure();
     stage?.resize();
+    dust.resize();
     ScrollTrigger.refresh();
     master.time(scrollToTime(scrollY, pager.sectionTops));
   };
@@ -135,6 +139,9 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
     const closingTop = pager.sectionTops[CLOSING];
     const off = closingTop !== undefined && pager.lenis.scroll > closingTop + innerHeight * 0.5;
     canvas.classList.toggle('is-off', off);
+    // The dust belongs to the stage: it fades as soon as the page leaves the lineup for the reading sections.
+    const st = store.get();
+    dust.render(Math.min(deltaMs, 100) / 1000, st.entered && st.section < CLOSING);
     if (!stage || off) return;
     stage.render(Math.min(deltaMs, 100) / 1000);
     const p = stage.product;
@@ -271,6 +278,7 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
     if (stage) gsap.killTweensOf(stage);
     document.body.classList.remove('is-grabbing');
     canvas.classList.remove('is-off');
+    dustCanvas.getContext('2d')?.clearRect(0, 0, dustCanvas.width, dustCanvas.height);
     stage?.dispose();
   };
 }

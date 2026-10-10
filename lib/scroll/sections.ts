@@ -18,15 +18,21 @@ export function productForSection(s: number): number | null {
 }
 
 // Into and out of the walk the camera travels, so those pages take longer. A jump across several
-// products spins the vial once per product, so it gets at least SPIN_TIME per product and an even
-// sine ease: its peak speed stays under about 6 turns a second, slow enough that even at 30fps each
-// label swap still lands while the label faces away.
+// sections that leaves the walk spins the vial once per product, so it gets at least SPIN_TIME per
+// product and an even sine ease: its peak speed stays under about 6 turns a second, slow enough
+// that even at 30fps each label swap still lands while the label faces away.
 const SPIN_TIME = 0.28;
+
+/** A jump between two products that skips at least one: the vial makes JUMP_TURNS and swaps its label once. */
+export function isProductJump(from: number, to: number): boolean {
+  return productForSection(from) !== null && productForSection(to) !== null && Math.abs(to - from) > 1;
+}
 
 export function pageDuration(from: number, to: number): number {
   const lo = Math.min(from, to);
   const hi = Math.max(from, to);
   const base = lo === 0 || hi === RANGE ? 1.4 : 0.9;
+  if (isProductJump(from, to)) return Math.min(1.2, Math.max(base, 0.5 + 0.07 * (hi - lo)));
   return hi - lo > 1 ? Math.max(base, SPIN_TIME * (hi - lo)) : base;
 }
 

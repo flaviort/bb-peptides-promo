@@ -28,7 +28,10 @@ it('pages slowly into and out of the walk, quickly between products, longer for 
   expect(pageDuration(1, 0)).toBe(1.4);
   expect(pageDuration(12, 13)).toBe(1.4);
   expect(pageDuration(2, 3)).toBe(0.9);
-  // Jumps get at least 0.28s per product so the spins stay readable.
-  expect(pageDuration(2, 9)).toBeCloseTo(1.96);
+  // A jump between products is one quick move, capped at 1.2s whatever it skips.
+  expect(pageDuration(2, 9)).toBeCloseTo(0.99);
+  expect(pageDuration(1, 12)).toBeCloseTo(1.2);
+  expect(pageDuration(12, 1)).toBeCloseTo(1.2);
+  // Leaving the walk still gets at least 0.28s per product so the spins stay readable.
   expect(pageDuration(0, 12)).toBeCloseTo(3.36);
 });

@@ -9,10 +9,12 @@ let queue: Promise<void> = Promise.resolve();
 
 export function Experience() {
   const ref = useRef<HTMLCanvasElement>(null);
+  const dustRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = ref.current;
-    if (!canvas) return;
+    const dustCanvas = dustRef.current;
+    if (!canvas || !dustCanvas) return;
     let dispose: (() => void) | undefined;
     let cancelled = false;
     // Boot races its own 8s deadline; this covers the boot chunk itself stalling or boot throwing.
@@ -22,7 +24,7 @@ export function Experience() {
         if (cancelled) return;
         const { boot } = await import('@/lib/boot');
         if (cancelled) return;
-        const d = await boot(canvas);
+        const d = await boot(canvas, dustCanvas);
         if (cancelled) d();
         else dispose = d;
       })
@@ -34,5 +36,10 @@ export function Experience() {
     };
   }, []);
 
-  return <canvas ref={ref} aria-hidden="true" className="stage-canvas" />;
+  return (
+    <>
+      <canvas ref={ref} aria-hidden="true" className="stage-canvas" />
+      <canvas ref={dustRef} aria-hidden="true" className="dust-canvas" />
+    </>
+  );
 }

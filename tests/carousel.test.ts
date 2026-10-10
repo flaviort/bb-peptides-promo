@@ -1,17 +1,17 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
-import { Carousel } from '@/lib/stage/Carousel';
+import { Carousel, labelToward } from '@/lib/stage/Carousel';
 import type { ProductModel } from '@/lib/stage/ProductModel';
 import { DEFAULT_VALUES, type SceneValues } from '@/lib/stage/values';
-import { pageDuration, pageEase } from '@/lib/scroll/sections';
+import { isProductJump, pageDuration, pageEase } from '@/lib/scroll/sections';
 
 class FakeModel implements ProductModel {
   readonly group = new THREE.Group();
-  swaps: { to: number; ry: number; scale: number }[] = [];
+  swaps: { to: number; toward: number; scale: number }[] = [];
   constructor(private index: number) {}
   get labelIndex() { return this.index; }
   setLabel(i: number) {
-    this.swaps.push({ to: i, ry: this.group.rotation.y, scale: this.group.scale.x });
+    this.swaps.push({ to: i, toward: labelToward(this.group), scale: this.group.scale.x });
     this.index = i;
   }
   dispose() {}
@@ -43,14 +43,14 @@ describe('label swaps during the walk', () => {
     run(c, -1, 11, 0.02);
     expect(center.labelIndex).toBe(11);
     expect(center.swaps.map((s) => s.to)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
-    for (const s of center.swaps) expect(Math.cos(s.ry)).toBeLessThan(-0.2);
+    for (const s of center.swaps) expect(s.toward).toBeLessThan(-0.2);
   });
 
   it('turns back into its own product leaving for the range row', () => {
     const { c, center } = setup(false);
     run(c, -1, 12, 0.02);
     expect(center.labelIndex).toBe(5);
-    expect(Math.cos(center.swaps[center.swaps.length - 1].ry)).toBeLessThan(-0.2);
+    expect(center.swaps[center.swaps.length - 1].toward).toBeLessThan(-0.2);
   });
 
   it('walks backwards to the hero just as cleanly', () => {
@@ -58,7 +58,7 @@ describe('label swaps during the walk', () => {
     run(c, -1, 6, 0.02);
     run(c, 6, -1, 0.02);
     expect(center.labelIndex).toBe(5);
-    for (const s of center.swaps) expect(Math.cos(s.ry)).toBeLessThan(-0.2);
+    for (const s of center.swaps) expect(s.toward).toBeLessThan(-0.2);
   });
 
   it('still lands on the right product when frames are coarse (a fast jump)', () => {
@@ -115,7 +115,9 @@ describe('hero ring', () => {
 
 describe('paged jumps at 30fps (the mobile floor)', () => {
   // Section s sits at walk s - 1: hero -1, p01 0, ..., p12 11, range 12.
+  // The pager tells the carousel about a product to product jump, as lib/boot.ts wires it.
   const jump = (c: Carousel, from: number, to: number) => {
+    c.jump = isProductJump(from, to) ? { from: from - 1, to: to - 1 } : null;
     const d = pageDuration(from, to);
     const ease = pageEase(from, to);
     const frames = Math.ceil(d * 30);
@@ -123,6 +125,8 @@ describe('paged jumps at 30fps (the mobile floor)', () => {
       const s = from + (to - from) * ease(k / frames);
       c.update(1 / 30, valuesAt(s - 1), { mx: 0, my: 0 });
     }
+    c.jump = null;
+    c.update(1 / 30, valuesAt(to - 1), { mx: 0, my: 0 });
   };
   for (const [from, to] of [[2, 11], [0, 11], [11, 2], [0, 13], [1, 2]]) {
     it(`never swaps a label facing the camera, section ${from} to ${to}`, () => {
@@ -130,8 +134,18 @@ describe('paged jumps at 30fps (the mobile floor)', () => {
       c.update(1 / 30, valuesAt(from - 1), { mx: 0, my: 0 });
       center.swaps = [];
       jump(c, from, to);
-      for (const s of center.swaps) expect(Math.cos(s.ry)).toBeLessThan(-0.2);
+      for (const s of center.swaps) expect(s.toward).toBeLessThan(-0.2);
       expect(center.labelIndex).toBe(to >= 1 && to <= 12 ? to - 1 : 5);
+    });
+  }
+  for (const [from, to] of [[1, 12], [12, 1], [1, 4], [1, 6], [9, 3]]) {
+    it(`swaps the label once, straight to the destination, section ${from} to ${to}`, () => {
+      const { c, center } = setup(false);
+      c.update(1 / 30, valuesAt(from - 1), { mx: 0, my: 0 });
+      center.swaps = [];
+      jump(c, from, to);
+      expect(center.swaps.map((s) => s.to)).toEqual([to - 1]);
+      expect(center.swaps[0].toward).toBeLessThan(-0.2);
     });
   }
 });

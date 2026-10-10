@@ -1,11 +1,13 @@
 import Lenis from 'lenis';
 import { planPage, resnap, sectionAt, zoneFor } from './math';
-import { RANGE, easeInOutSine, pageDuration, pageEase } from './sections';
+import { RANGE, easeInOutSine, isProductJump, pageDuration, pageEase, productForSection } from './sections';
 
 
 export interface PagerOptions {
   paging: boolean;
   onSection: (index: number) => void;
+  /** A product to product jump starts (product indices), or null when it ends. */
+  onJump?: (jump: { from: number; to: number } | null) => void;
 }
 
 export class Pager {
@@ -123,6 +125,7 @@ export class Pager {
     const from = this.current;
     this.locked = true;
     this.current = to;
+    this.opts.onJump?.(isProductJump(from, to) ? { from: productForSection(from)!, to: productForSection(to)! } : null);
     this.opts.onSection(to);
     this.lenis.scrollTo(scroll, {
       duration: pageDuration(from, to),
@@ -132,6 +135,7 @@ export class Pager {
       onComplete: () => {
         this.locked = false;
         this.unlockedAt = performance.now();
+        this.opts.onJump?.(null);
         const next = this.queued;
         this.queued = null;
         if (next !== null && next !== this.current) this.goTo(next);
@@ -144,6 +148,7 @@ export class Pager {
     // here, or paging and every queued jump stay wedged for the rest of the visit.
     this.locked = false;
     this.queued = null;
+    this.opts.onJump?.(null);
     // From inside the paged zone the scroll passes every remaining product spin, so it keeps the jump pace.
     const paged = this.current < RANGE;
     this.lenis.scrollTo(el, {

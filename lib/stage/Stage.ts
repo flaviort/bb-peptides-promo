@@ -5,6 +5,7 @@ import { VialModel, createVialGeometries, createVialMaterials, type Quality, typ
 import { createLabelTexture } from './label';
 import { Carousel } from './Carousel';
 import { Lights } from './Lights';
+import { GridRoom } from './GridRoom';
 import { createStudioScene } from './Studio';
 import { lightMix } from './walk';
 
@@ -32,6 +33,7 @@ export class Stage {
   private readonly camera = new THREE.PerspectiveCamera(30, 1, 0.1, 200);
   private readonly fog: THREE.Fog;
   private readonly lights: Lights;
+  private readonly grid: GridRoom;
   private readonly raycaster = new THREE.Raycaster();
   private readonly scratch: SceneValues = { ...DEFAULT_VALUES };
   private readonly envMap: THREE.Texture;
@@ -59,6 +61,8 @@ export class Stage {
     this.fog = new THREE.Fog(opts.background, 12, 26);
     this.scene.fog = this.fog;
     this.lights = new Lights(this.scene);
+    this.grid = new GridRoom(opts.reduced);
+    this.scene.add(this.grid.mesh);
     this.resize();
   }
 
@@ -85,6 +89,10 @@ export class Stage {
   get product(): number {
     if (!this.carousel) return 0;
     return this.values.focus > 0.5 ? this.carousel.centerModel.labelIndex : this.carousel.product;
+  }
+
+  setJump(jump: { from: number; to: number } | null) {
+    if (this.carousel) this.carousel.jump = jump;
   }
 
   setProduct(index: number) {
@@ -159,6 +167,8 @@ export class Stage {
     this.renderer.toneMappingExposure = s.exposure;
     this.lights.apply(s, dt, lightMix(s.walk, CATEGORIES_IN_ORDER));
     this.carousel.update(dt, s, { mx: this.pointer.x, my: this.pointer.y });
+    // The grid room belongs to the lineup row, and leaves as the camera drops into the closing page.
+    this.grid.update(dt, s.row * (1 - Math.min(1, Math.max(0, -s.camY / 4))), this.camera, this.pointer);
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -179,6 +189,7 @@ export class Stage {
     this.textures.forEach((t) => t.dispose());
     this.geo?.dispose();
     this.mats?.dispose();
+    this.grid.dispose();
     this.envMap.dispose();
     this.renderer.dispose();
   }

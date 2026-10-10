@@ -26,8 +26,9 @@ export function dipScale(walk: number): number {
   return 0.15 + 0.85 * Math.abs(Math.cos(Math.PI * walk));
 }
 
-export function facesAway(ry: number): boolean {
-  return Math.cos(ry) < -0.2;
+// Takes the z of the label's world direction (1 faces the camera, -1 faces straight away).
+export function facesAway(towardCamera: number): boolean {
+  return towardCamera < -0.2;
 }
 
 export type LightMix = Record<LightKind, number>;

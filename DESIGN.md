@@ -91,9 +91,9 @@ components:
 
 **Creative North Star: "The Lamp Room"**
 
-A dark room, one lamp, one vial. The page is an Ink (#111111) ground that the brand blues light from above and below, never paint. Electric Blue arrives as floor pools, the vial labels and a handful of glowing indicators; Light Blue is the lamp itself and the category text it would print in. White carries the type. The whole range appears first as an arc of 12 vials, then the scroll walks them one at a time: each focus vial makes one full turn per page, its label swaps only while it faces away, and the copy panel swaps in the same beat.
+A dark room, one lamp, one vial. The page is an Ink (#111111) ground that the brand blues light from above and below, never paint. Electric Blue arrives as floor pools, the vial labels and a handful of glowing indicators; Light Blue is the lamp itself and the category text it would print in. White carries the type. The whole range appears first as an arc of 12 vials, then the scroll walks them one at a time: each focus vial makes one full turn per page in place, its label swaps only while it faces away, and the copy panel swaps in the same beat. Blue stardust hangs in the air in front of all of it.
 
-Structure is drawn, not boxed. Hairlines (1px white at 14% and 30%), corner brackets on a fixed frame, a faint 12-column floor grid and square controls hold the page together; nothing is rounded and nothing floats on a drop shadow. Display type is RBNo2.1 Medium Italic in capitals, set huge and tight; everything that has to be read is Poppins. Density is low on the stage (one name, one meta line, one track) and rises only in the closing reading sections.
+Structure is drawn, not boxed. Hairlines (1px white at 14% and 30%), a faint 12-column floor grid and square controls hold the page together; nothing is rounded and nothing floats on a drop shadow. Display type is RBNo2.1 Medium Italic in capitals, set huge and tight; everything that has to be read is Poppins. Density is low on the stage (one name, one meta line, one track) and rises only in the closing reading sections.
 
 Provenance: this world was pinned by the client's 2026 brand book (recorded in `../bodybuilding-peptides/DESIGN.md`) and a brand sample the user approved (`mockups/hero.html`, with the Ink ground chosen by the user). The Impeccable concept roll was deliberately not run, so there is no seed key. The structural and motion base is forked from the Hiatus promo (`../hiatus`).
 
@@ -101,7 +101,7 @@ Provenance: this world was pinned by the client's 2026 brand book (recorded in `
 - Ink ground, lit by Electric Blue and Light Blue gradients that read as light falling on a floor.
 - One focus vial at a time; the label and the panel copy swap together while the vial faces away.
 - RBNo2.1 Medium Italic caps for names and headlines, Poppins for everything read.
-- Square corners everywhere; hairlines and corner brackets instead of cards.
+- Square corners everywhere; hairlines instead of cards.
 - Glow is reserved for light sources and Electric Blue indicators.
 
 ## Colors
@@ -122,7 +122,7 @@ Four brand colors and one label-only tint, with white alphas doing all the neutr
 - **White** (#FFFFFF): headlines, body, primary button fill, focus ring, square control icons.
 - **Muted** (rgb(255 255 255 / 0.62)): secondary text: tagline, nav links, spec terms, notes, legal, vial size, counters.
 - **Hairline** (rgb(255 255 255 / 0.14)): dividers, spec rows, accordion rules, the nav and footer edge.
-- **Hairline Strong** (rgb(255 255 255 / 0.3)): outlines on square controls, chips, social buttons, and the frame corner brackets.
+- **Hairline Strong** (rgb(255 255 255 / 0.3)): outlines on square controls, chips and social buttons.
 
 ### Named Rules
 **The Light Not Paint Rule.** On the stage, blue is never a flat fill behind content. It arrives as radial pools from below, a beam from above, a lamp bar or a lit indicator. The single exception is the assessment band, the one full Electric Blue field, placed at the moment the page asks for the action.
@@ -139,7 +139,7 @@ Four brand colors and one label-only tint, with white alphas doing all the neutr
 **Character:** A fast, slanted, all-caps sports face for names and headlines against a round, plain geometric sans that does every reading job. The italic carries the energy; Poppins keeps the facts calm.
 
 ### Hierarchy
-- **Display** (500 italic caps, clamp(2.4rem, 6.4vw, 6rem), line-height 0.92, -0.01em): the hero product name, revealed by character. The ghost name behind the walk goes larger (clamp(6rem, 19vw, 18rem), 0.86, -0.02em) as a 1px Light Blue outline at 16%.
+- **Display** (500 italic caps, clamp(2.4rem, 6.4vw, 6rem), line-height 0.92, -0.01em): the hero product name, revealed by character. The ghost name behind the walk vial (its own back layer, under the canvas) goes larger (clamp(6rem, 19vw, 18rem), 0.86, -0.02em) as a 1px Light Blue outline at 16%.
 - **Headline** (500 italic caps, clamp(2.6rem, 6vw, 5rem), 0.92): closing section titles. The band title runs to 6rem, the walk product name to 4.4rem, the range title to 4.5rem, menu links at clamp(1.5rem, 2.4vw, 2.25rem).
 - **Title** (Poppins 600, 20px, 1.3): How it works step titles. Accordion questions use 500 at clamp(18px, 2vw, 22px).
 - **Body** (Poppins 400, 16px, 1.625): product about (42ch), FAQ answers (70ch), step copy at 15px (38ch). Band copy runs 18px / 1.6.
@@ -152,13 +152,13 @@ Four brand colors and one label-only tint, with white alphas doing all the neutr
 
 ## Layout
 
-The stage is a fixed full-viewport canvas (z 1) over a fixed Backdrop (z 0), with fixed content layers (z 3) that cross-fade per scroll page, a fixed frame (z 4) and a fixed nav (z 6). Scroll is paged: each section is a 125vh spacer and the Pager snaps the timeline between keyframes. The closing reading sections scroll normally over an Ink gradient.
+The stage is a fixed full-viewport canvas (z 2) over a fixed Backdrop (z 0) and a back layer for the walk's ghost name (z 1), with fixed content layers (z 3) that cross-fade per scroll page, the stardust canvas (z 5) and a fixed nav (z 6). Scroll is paged: each section is a 125vh spacer and the Pager snaps the timeline between keyframes. The closing reading sections scroll normally over an Ink gradient.
 
-The horizontal unit is `--gutter` (clamp(20px, 4vw, 56px)). The backdrop grid divides the space inside the gutters into 12 columns at 4.5% white, masked to fade at the edges. Stage copy sits 28px inside the gutter (tagline top-left, product panel left at min(400px, 32vw), product rail right). The frame insets 120px from the top and 40px from the bottom.
+The horizontal unit is `--gutter` (clamp(20px, 4vw, 56px)). The backdrop grid divides the space inside the gutters into 12 columns at 4.5% white, masked to fade at the edges. Stage copy sits 28px inside the gutter (tagline top-left, product panel left at min(400px, 32vw), product rail right).
 
 Spacing steps observed: 8, 12, 24, 32, 48px for gaps, 112px vertical padding in closing blocks (80px on small screens), max widths of 1320px (How it works) and 960px (FAQ).
 
-Breakpoints: 860px drops the product rail, stacks the product panel along the bottom and collapses the menu and How it works to one column; 640px shortens the nav to 72px, hides the hero tagline and arrows, and tightens the frame to 80px / 16px / 20px.
+Breakpoints: 860px drops the product rail, stacks the product panel along the bottom and collapses the menu and How it works to one column; 640px shortens the nav to 72px, hides the hero tagline and arrows.
 
 ## Elevation & Depth
 
@@ -174,7 +174,7 @@ Flat UI, lit room. No component lifts off the page with a drop shadow. Depth com
 
 ## Shapes
 
-Square, always (0px radius, no exceptions in the build). Controls are squares or rectangles outlined by a 1px hairline. The fixed frame marks its corners with 14px L-shaped brackets rather than a full border. Small marks are squares too: the 2x2 menu-toggle squares (5px), the 4px meta separator, the 6px chip dot, the 4px track bars. The beam is a clipped trapezoid (`clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%)`), blurred 18px. Icons are a single stroke set at 1.6px.
+Square, always (0px radius, no exceptions in the build). Controls are squares or rectangles outlined by a 1px hairline. Small marks are squares too: the 2x2 menu-toggle squares (5px), the 4px meta separator, the 6px chip dot, the 4px track bars. The beam is a clipped trapezoid (`clip-path: polygon(40% 0, 60% 0, 92% 100%, 8% 100%)` on a child) whose parent is blurred 28px and masked to fade toward the floor, so its edges feather instead of cutting. Icons are a single stroke set at 1.6px.
 
 ## Components
 
@@ -204,7 +204,11 @@ Twelve 22px hit targets, each a 4px bar at 22% White drawn at half height. The c
 Question rows at clamp(18px, 2vw, 22px) 500 with a 20px stroke plus that rotates 45 degrees when open; answers at 16px / 1.625 in 78% White, 70ch.
 
 ### The Stage (signature)
-A 5 mL serum vial: reflection-only glass (additive blending, clearcoat, faint blue body tint #0A1028) so the Ink and pools show through, a chrome crimp (#D9DDE4, metal 1, roughness 0.22), an Electric Blue cap, and a canvas-drawn wrap label (Electric Blue ground, Label Stripe band, White Poppins type, "Rx only" at 75%). The environment is a small HDR product studio of softboxes and strip lights so chrome reads as bands. Hero: 12 vials on an arc, center vial under a Light Blue spot, ring fogged into the Ink from 11 to 21 units. Walk: one vial at three-quarter tilt, panel on its left, one full turn per page; the label texture swaps only when the vial faces away (cos(ry) < -0.2), and the panel copy leaves upward while the new copy reveals in sync.
+A 5 mL serum vial: reflection-only glass (additive blending, clearcoat, faint blue body tint #0A1028) so the Ink and pools show through, a chrome crimp (#D9DDE4, metal 1, roughness 0.22), an Electric Blue cap, and a canvas-drawn wrap label (Electric Blue ground, Label Stripe band, White Poppins type, "Rx only" at 75%). The environment is a small HDR product studio of softboxes and strip lights so chrome reads as bands. Hero: 12 vials on an arc, center vial under a Light Blue spot, ring fogged into the Ink from 11 to 21 units. Walk: one vial at three-quarter tilt, panel on its left, one full turn per page about its own long axis, so it spins in place, with a rock of under a degree at mid spin. A jump that skips products makes two turns in at most 1.2s and swaps the label once, straight to the destination. The label texture swaps only when the label faces away from the camera, and the panel copy leaves upward while the new copy reveals in sync.
+
+**Stardust** (`lib/stardust.ts`): a 2D canvas over the content layers, under the nav, about one speck per 11,000 px² of viewport. Each speck is a soft Electric Blue glow with a pale blue-white core; it wanders up to 24px, twinkles, and nearer specks are larger and brighter. It fades in on entering and fades out as soon as the page leaves the lineup for the reading sections.
+
+**Grid room** (`lib/stage/GridRoom.ts`): the full lineup's backdrop, after React Bits' Grid Scan. One full-screen quad drawn behind the vials casts a ray per pixel into a box room (half width 1.7, half height 1) gridded in Light Blue at 32%, fogged with depth. An Electric Blue scan band with a white core sweeps down the room's length in 3.2s every 5s, leaving a short trail on the lines, and the room tilts a few degrees toward the pointer. It fades in with the row and out as the camera drops into the closing page; with reduced motion the sweep stands still.
 
 ## Do's and Don'ts
 
