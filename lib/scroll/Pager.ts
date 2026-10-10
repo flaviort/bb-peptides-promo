@@ -109,11 +109,12 @@ export class Pager {
   }
 
   private animateTo(to: number, scroll: number) {
+    const from = this.current;
     this.locked = true;
     this.current = to;
     this.opts.onSection(to);
     this.lenis.scrollTo(scroll, {
-      duration: pageDuration(to),
+      duration: pageDuration(from, to),
       easing: easeOutCubic,
       lock: true,
       force: true,
@@ -125,6 +126,10 @@ export class Pager {
         if (next !== null && next !== this.current) this.goTo(next);
       },
     });
+  }
+
+  scrollToElement(el: HTMLElement) {
+    this.lenis.scrollTo(el, { offset: -96, duration: 1.6, force: true });
   }
 
   private onScroll = () => {

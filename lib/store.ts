@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { wrapIndex } from './flavors';
+import { wrapIndex } from './products';
 
 export function createStore<T extends object>(initial: T) {
   let state = initial;
@@ -23,10 +23,13 @@ export function createStore<T extends object>(initial: T) {
 }
 
 export interface AppState {
-  flavor: number;
-  flavorSource: 'ui' | 'stage';
+  /** Index into PRODUCTS of the product on screen. */
+  product: number;
+  /** 'ui' when a control picked it (the stage should follow), 'stage' when the stage reported it. */
+  productSource: 'ui' | 'stage';
   section: number;
-  ageOk: boolean;
+  /** Product hovered in the range row. */
+  hover: number | null;
   loaded: number;
   ready: boolean;
   entered: boolean;
@@ -35,10 +38,10 @@ export interface AppState {
 }
 
 export const store = createStore<AppState>({
-  flavor: 0,
-  flavorSource: 'ui',
+  product: 0,
+  productSource: 'ui',
   section: 0,
-  ageOk: false,
+  hover: null,
   loaded: 0,
   ready: false,
   entered: false,
@@ -50,6 +53,6 @@ export function useApp<K>(select: (s: AppState) => K): K {
   return useSyncExternalStore(store.subscribe, () => select(store.get()), () => select(store.get()));
 }
 
-export function selectFlavor(i: number): void {
-  store.set({ flavor: wrapIndex(i), flavorSource: 'ui' });
+export function selectProduct(i: number): void {
+  store.set({ product: wrapIndex(i), productSource: 'ui' });
 }

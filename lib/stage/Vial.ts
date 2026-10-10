@@ -71,16 +71,16 @@ function glassMaterial(high: boolean, side: THREE.Side, intensity: number): THRE
 
 export function createVialMaterials(quality: Quality): VialMaterials {
   const high = quality === 'high';
-  const glass = glassMaterial(high, THREE.FrontSide, 2.4);
-  const glassBack = high ? glassMaterial(true, THREE.BackSide, 0.9) : null;
+  const glass = glassMaterial(high, THREE.FrontSide, 1.1);
+  const glassBack = high ? glassMaterial(true, THREE.BackSide, 0.45) : null;
   const crimp = new THREE.MeshStandardMaterial({ color: 0xd9dde4, metalness: 1, roughness: 0.22 });
   const cap = high
-    ? new THREE.MeshPhysicalMaterial({ color: 0x3b60ff, roughness: 0.38, clearcoat: 0.5, clearcoatRoughness: 0.2 })
-    : new THREE.MeshStandardMaterial({ color: 0x3b60ff, roughness: 0.4 });
+    ? new THREE.MeshPhysicalMaterial({ color: 0x3b60ff, roughness: 0.38, clearcoat: 0.5, clearcoatRoughness: 0.2, envMapIntensity: 0.4 })
+    : new THREE.MeshStandardMaterial({ color: 0x3b60ff, roughness: 0.4, envMapIntensity: 0.4 });
   const label = (map: THREE.Texture) =>
     high
-      ? new THREE.MeshPhysicalMaterial({ map, roughness: 0.5, metalness: 0, clearcoat: 0.3, clearcoatRoughness: 0.3 })
-      : new THREE.MeshStandardMaterial({ map, roughness: 0.55, metalness: 0 });
+      ? new THREE.MeshPhysicalMaterial({ map, roughness: 0.5, metalness: 0, clearcoat: 0.3, clearcoatRoughness: 0.3, envMapIntensity: 0.35 })
+      : new THREE.MeshStandardMaterial({ map, roughness: 0.55, metalness: 0, envMapIntensity: 0.35 });
   return {
     glass,
     glassBack,

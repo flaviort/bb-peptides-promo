@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import { createStore } from '@/lib/store';
+import { createStore, selectProduct, store } from '@/lib/store';
 
 it('notifies only on real changes', () => {
   const s = createStore({ a: 1, b: 2 });
@@ -19,4 +19,11 @@ it('unsubscribes', () => {
   off();
   s.set({ a: 3 });
   expect(fn).not.toHaveBeenCalled();
+});
+
+it('wraps product selection and marks it as a UI choice', () => {
+  selectProduct(-1);
+  expect(store.get()).toMatchObject({ product: 11, productSource: 'ui' });
+  selectProduct(12);
+  expect(store.get().product).toBe(0);
 });

@@ -1,14 +1,15 @@
-import { FLAVORS } from './flavors';
+import { PRODUCTS } from './products';
 import { SECTIONS, type SectionId } from './scroll/sections';
 
 export interface Debug {
-  skipGate: boolean;
+  skipIntro: boolean;
   section: number | null;
-  flavor: number | null;
+  product: number | null;
 }
 
-const OFF: Debug = { skipGate: false, section: null, flavor: null };
+const OFF: Debug = { skipIntro: false, section: null, product: null };
 
+// Dev only (or a build with NEXT_PUBLIC_DEBUG=1): /?intro=skip&section=<id|index>&product=<id>
 export function readDebug(search: string = typeof location === 'undefined' ? '' : location.search): Debug {
   if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_DEBUG) return OFF;
   const q = new URLSearchParams(search);
@@ -20,6 +21,6 @@ export function readDebug(search: string = typeof location === 'undefined' ? '' 
     if (byId >= 0) section = byId;
     else if (Number.isInteger(byIndex) && byIndex >= 0 && byIndex < SECTIONS.length) section = byIndex;
   }
-  const f = FLAVORS.findIndex((x) => x.id === q.get('flavor'));
-  return { skipGate: q.get('gate') === 'skip', section, flavor: f >= 0 ? f : null };
+  const p = PRODUCTS.findIndex((x) => x.id === q.get('product'));
+  return { skipIntro: q.get('intro') === 'skip', section, product: p >= 0 ? p : null };
 }

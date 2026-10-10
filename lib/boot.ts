@@ -1,12 +1,12 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { FLAVORS, type Flavor } from './flavors';
+import { PRODUCTS, productUrl } from './products';
 import { store } from './store';
-import { KEYS, readFlag } from './persist';
 import { createProgress } from './progress';
 import { readDebug } from './debug';
+import { withTimeout } from './timeout';
 import { Pager } from './scroll/Pager';
-import { SECTIONS, type SectionId } from './scroll/sections';
+import { CLOSING, RANGE, SECTIONS, productForSection, sectionForProduct, type SectionId } from './scroll/sections';
 import { setPager } from './scroll/instance';
 import { scrollToTime } from './scroll/math';
 import { buildMasterTimeline } from './scroll/timeline';
@@ -14,7 +14,8 @@ import { buildKeyframes } from './stage/keyframes';
 import { DEFAULT_VALUES } from './stage/values';
 import type { Stage, Quality } from './stage/Stage';
 
-const CREAM = '#F6EDDC';
+const INK = '#111111';
+const LOAD_TIMEOUT = 8000;
 
 function hasWebGL(): boolean {
   try {
@@ -26,11 +27,11 @@ function hasWebGL(): boolean {
   }
 }
 
-function applyFlavorVars(f: Flavor) {
-  const root = document.documentElement.style;
-  root.setProperty('--p', f.colors.p);
-  root.setProperty('--s', f.colors.s);
-  root.setProperty('--d', f.colors.d);
+// next/font exposes the hashed Poppins family on <html>; the canvas labels need it loaded first.
+async function labelFont(): Promise<string> {
+  const family = getComputedStyle(document.documentElement).getPropertyValue('--font-poppins').trim() || 'Poppins, sans-serif';
+  await Promise.all(['400', '500', '600'].map((w) => document.fonts.load(`${w} 64px ${family}`))).catch(() => undefined);
+  return family;
 }
 
 export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
@@ -41,39 +42,26 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
   const mobileQuery = matchMedia('(max-width: 760px)');
   const quality: Quality = mobileQuery.matches || (navigator.hardwareConcurrency ?? 8) <= 4 ? 'low' : 'high';
 
-  // Preferences
-  store.set({ ageOk: readFlag(KEYS.age) === true || debug.skipGate });
-  if (debug.flavor !== null) store.set({ flavor: debug.flavor, flavorSource: 'ui' });
-  applyFlavorVars(FLAVORS[store.get().flavor]);
+  if (debug.product !== null) store.set({ product: debug.product, productSource: 'ui' });
 
   // Loading
-  const progress = createProgress({ textures: 3, fonts: 1 }, (v) => {
+  const progress = createProgress({ models: 3, fonts: 1 }, (v) => {
     store.set({ loaded: v });
     if (v >= 1) store.set({ ready: true });
   });
   void document.fonts.ready.then(() => progress.update('fonts', 1));
 
-  // Safety net: a stalled fetch or chunk must not strand the visitor on the preloader.
-  const safety = setTimeout(() => {
-    progress.update('textures', 1);
-  }, 8000);
-  cleanups.push(() => clearTimeout(safety));
-
+  // Every step races the timeout: a stalled chunk or label build drops to the static path instead of hanging.
   let stage: Stage | null = null;
   if (hasWebGL()) {
     let s: Stage | null = null;
     try {
-      const { Stage } = await import('./stage/Stage');
-      s = new Stage({
-        canvas,
-        quality,
-        labels: FLAVORS.map((f) => (quality === 'high' ? f.label.hi : f.label.lo)),
-        background: CREAM,
-        onProgress: (f) => progress.update('textures', f),
-      });
-      await s.load();
+      const font = await withTimeout(labelFont(), LOAD_TIMEOUT);
+      const { Stage } = await withTimeout(import('./stage/Stage'), LOAD_TIMEOUT);
+      s = new Stage({ canvas, quality, labelFont: font, background: INK, reduced, onProgress: (f) => progress.update('models', f) });
+      await withTimeout(s.load(), LOAD_TIMEOUT);
       stage = s;
-      stage.setFlavor(store.get().flavor);
+      stage.setProduct(store.get().product);
     } catch {
       s?.dispose();
       store.set({ webgl: false });
@@ -81,19 +69,32 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
   } else {
     store.set({ webgl: false });
   }
-  progress.update('textures', 1);
+  progress.update('models', 1);
+  progress.update('fonts', 1);
 
   // Scroll
-  const pager = new Pager({ paging: !reduced, onSection: (i) => store.set({ section: i }) });
+  const pager = new Pager({
+    paging: !reduced,
+    onSection: (i) => {
+      store.set({ section: i });
+      // Without the stage, the section alone decides which product the walk shows.
+      const p = productForSection(i);
+      if (!stage && p !== null) store.set({ product: p, productSource: 'stage' });
+    },
+  });
   setPager(pager);
   pager.stop();
   pager.measure();
   const values = stage?.values ?? { ...DEFAULT_VALUES };
   let master = buildMasterTimeline(values, buildKeyframes(mobileQuery.matches));
+  const root = document.documentElement.style;
   const trigger = ScrollTrigger.create({
     start: 0,
     end: 'max',
-    onUpdate: (self) => master.time(scrollToTime(self.scroll(), pager.sectionTops)),
+    onUpdate: (self) => {
+      master.time(scrollToTime(self.scroll(), pager.sectionTops));
+      root.setProperty('--progress', self.progress.toFixed(4));
+    },
   });
   pager.lenis.on('scroll', ScrollTrigger.update);
 
@@ -115,25 +116,35 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
     mobileQuery.removeEventListener('change', onBreakpoint);
   });
 
-  // Frame loop: Lenis first so the timeline reads this frame's scroll.
+  // Frame loop: Lenis first so the timeline reads this frame's scroll. Once the closing sections
+  // are well in view the canvas fades out and stops rendering.
   const tick = (time: number, deltaMs: number) => {
     pager.raf(time * 1000);
-    if (!stage) return;
+    const closingTop = pager.sectionTops[CLOSING];
+    const off = closingTop !== undefined && pager.lenis.scroll > closingTop + innerHeight * 0.5;
+    canvas.classList.toggle('is-off', off);
+    if (!stage || off) return;
     stage.render(Math.min(deltaMs, 100) / 1000);
-    const f = stage.flavor;
-    if (f !== store.get().flavor) store.set({ flavor: f, flavorSource: 'stage' });
+    const p = stage.product;
+    if (p !== store.get().product) store.set({ product: p, productSource: 'stage' });
   };
   gsap.ticker.add(tick);
   gsap.ticker.lagSmoothing(0);
 
-  // Hero drag and center-can click
+  // Hero drag and center-vial click; range hover and click
   if (stage) {
     const st = stage;
     let dragging = false;
     let lastX = 0;
     let moved = 0;
     const canDrag = () => store.get().entered && store.get().section === 0;
+    const inRange = () => store.get().entered && store.get().section === RANGE;
     const down = (e: PointerEvent) => {
+      if (inRange()) {
+        const hit = st.hitProduct(e.clientX, e.clientY);
+        if (hit !== null) window.open(productUrl(PRODUCTS[hit]), '_blank', 'noreferrer');
+        return;
+      }
       if (!canDrag()) return;
       dragging = true;
       lastX = e.clientX;
@@ -144,21 +155,28 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
     const move = (e: PointerEvent) => {
       st.pointer.x = e.clientX / innerWidth - 0.5;
       st.pointer.y = e.clientY / innerHeight - 0.5;
-      if (!dragging) {
-        canvas.style.cursor = canDrag() ? (st.hitCenter(e.clientX, e.clientY) ? 'pointer' : 'grab') : '';
+      if (dragging) {
+        const dx = e.clientX - lastX;
+        lastX = e.clientX;
+        moved += Math.abs(dx);
+        st.drag(dx);
         return;
       }
-      const dx = e.clientX - lastX;
-      lastX = e.clientX;
-      moved += Math.abs(dx);
-      st.drag(dx);
+      if (inRange()) {
+        const hit = st.hitProduct(e.clientX, e.clientY);
+        st.setHover(hit);
+        store.set({ hover: hit });
+        canvas.style.cursor = hit === null ? '' : 'pointer';
+        return;
+      }
+      canvas.style.cursor = canDrag() ? (st.hitCenter(e.clientX, e.clientY) ? 'pointer' : 'grab') : '';
     };
     const up = (e: PointerEvent) => {
       if (!dragging) return;
       dragging = false;
       document.body.classList.remove('is-grabbing');
       if (moved < 6 && e.type === 'pointerup' && st.hitCenter(e.clientX, e.clientY)) {
-        pager.goTo(1);
+        pager.goTo(sectionForProduct(st.product));
         return;
       }
       st.release();
@@ -193,12 +211,12 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
   const enter = () => {
     pager.start();
     if (stage) {
-      if (debug.skipGate) stage.intro = 1;
+      if (debug.skipIntro || reduced) stage.intro = 1;
       else gsap.to(stage, { intro: 1, duration: 2.4, ease: 'power3.out' });
     }
     if (debug.section !== null) pager.jump(debug.section);
     else {
-      // Deep links such as #benefit-2 (the claim rail's hrefs) open on that section.
+      // Deep links such as #p05 open on that section.
       const fromHash = SECTIONS.indexOf(location.hash.slice(1) as SectionId);
       if (fromHash > 0) pager.jump(fromHash);
     }
@@ -209,18 +227,18 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
     const s = store.get();
     const p = prev;
     prev = s;
-    if (s.flavor !== p.flavor) {
-      applyFlavorVars(FLAVORS[s.flavor]);
-      if (s.flavorSource === 'ui') stage?.setFlavor(s.flavor);
-      else stage?.setTint(s.flavor);
+    if (s.product !== p.product && s.productSource === 'ui') stage?.setProduct(s.product);
+    if (s.section !== p.section && p.section === RANGE) {
+      stage?.setHover(null);
+      if (s.hover !== null) store.set({ hover: null });
     }
     if (s.entered && !p.entered) enter();
-    if (s.ready && debug.skipGate && !s.entered) store.set({ entered: true });
+    if (s.ready && debug.skipIntro && !s.entered) store.set({ entered: true });
   });
   // A remount (dev strict mode, HMR) can find the store already entered.
   const initial = store.get();
   if (initial.entered) enter();
-  else if (initial.ready && debug.skipGate) store.set({ entered: true });
+  else if (initial.ready && debug.skipIntro) store.set({ entered: true });
 
   return () => {
     unsubscribe();
@@ -232,6 +250,7 @@ export async function boot(canvas: HTMLCanvasElement): Promise<() => void> {
     setPager(null);
     if (stage) gsap.killTweensOf(stage);
     document.body.classList.remove('is-grabbing');
+    canvas.classList.remove('is-off');
     stage?.dispose();
   };
 }

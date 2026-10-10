@@ -8,8 +8,8 @@ export const DEFAULT_VALUES = {
   stageLight: 1, key: 1.2, rim: 1.4, ambient: 0.45, accent: 0, exposure: 1.1,
   fogNear: 13, fogFar: 25,
   mouse: 1,
-  // Label spotlight for the benefit sections; the rect defaults to the first spot so it never slides in.
-  hl: 0, hlU0: 0.325, hlV0: 0.058, hlU1: 0.545, hlV1: 0.138,
+  // -1 on the hero, 0 to 11 across the product sections, 12 on the range row (see lib/stage/walk.ts).
+  walk: -1,
 };
 
 export type SceneValues = typeof DEFAULT_VALUES;
