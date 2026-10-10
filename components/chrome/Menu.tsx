@@ -20,7 +20,8 @@ export function Menu() {
     if (!open) return;
     const el = panel.current;
     if (!el) return;
-    el.querySelector<HTMLElement>('a[href], button')?.focus();
+    // Focus the panel itself: a tap that opens the menu should not draw a focus ring on the first product.
+    el.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         store.set({ menuOpen: false });
@@ -29,7 +30,8 @@ export function Menu() {
       }
       if (e.key !== 'Tab' || !toggle.current) return;
       const items = [toggle.current, ...el.querySelectorAll<HTMLElement>('a[href], button')];
-      const i = items.indexOf(document.activeElement as HTMLElement);
+      // From the panel itself (where focus starts), Tab goes to the first product.
+      const i = Math.max(0, items.indexOf(document.activeElement as HTMLElement));
       const next = e.shiftKey ? (i <= 0 ? items.length - 1 : i - 1) : i === items.length - 1 ? 0 : i + 1;
       e.preventDefault();
       items[next].focus();
@@ -53,7 +55,7 @@ export function Menu() {
         <span className="menu-squares" aria-hidden="true"><i /><i /><i /><i /></span>
         <span className="max-sm:sr-only">{open ? 'Close' : 'Menu'}</span>
       </button>
-      <div id="site-menu" ref={panel} role="dialog" aria-modal="true" aria-label="Menu" inert={!open} className={cn('menu-panel', open && 'is-open')}>
+      <div id="site-menu" ref={panel} role="dialog" aria-modal="true" aria-label="Menu" tabIndex={-1} data-lenis-prevent inert={!open} className={cn('menu-panel', open && 'is-open')}>
         <nav aria-label="Products" className="menu-grid">
           {GROUPS.map((g) => (
             <section key={g.category} className="menu-group">

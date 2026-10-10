@@ -196,6 +196,7 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
   transition: clip-path 0.7s var(--ease-in-out-3), visibility 0s linear 0.7s;
 }
 .menu-panel.is-open { clip-path: inset(0); visibility: visible; transition-delay: 0s; }
+.menu-panel:focus { outline: none; }
 .menu-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; padding-top: 32px; border-top: 1px solid var(--hair); }
 .menu-group { opacity: 0; transform: translateY(16px); transition: transform 0.6s var(--ease-out-3), opacity 0.4s; }
 .menu-panel.is-open .menu-group { opacity: 1; transform: none; }
@@ -291,7 +292,9 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
   .product-rail { display: none; }
   .product-ghost { top: 24%; }
   .product-stack { left: 20px; right: 20px; top: auto; bottom: 24px; width: auto; transform: none; }
-  .product-panel { gap: 14px; }
+  .product-panel { gap: 12px; }
+  /* The benefit tags stay on desktop; on a phone they push the panel up into the vial. */
+  .product-focus { display: none; }
   .product-about { font-size: 15px; }
   .product-specs > div { grid-template-columns: 80px 1fr; padding: 9px 0; }
   .product-fallback { top: 24%; height: 30vh; }
@@ -304,6 +307,14 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 .range-links { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 6vh; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 22px; font-size: 13px; color: var(--muted); }
 .range-links a { display: inline-block; min-height: 28px; transition: color 0.2s; }
 @media (hover: hover) { .range-links a:hover { color: #fff; } }
+/* The scroll cue only shows on phones, where the name list below the row is hidden. */
+.range-hint { display: none; }
+@media (max-width: 760px) {
+  .range-title { top: 15vh; font-size: 3.4rem; }
+  .range-links { display: none; }
+  .range-hover { bottom: 14vh; }
+  .range-hint { display: flex; }
+}
 .range-fallback { position: absolute; top: 32vh; left: var(--gutter); right: var(--gutter); display: flex; justify-content: center; gap: 1vw; }
 .range-fallback img { height: 22vh; width: auto; }
 
@@ -322,7 +333,7 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 .band { position: relative; display: flex; align-items: flex-end; min-height: 72vh; overflow: hidden; background: var(--color-electric); }
 .band-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.28; mix-blend-mode: luminosity; }
 .band-inner { position: relative; width: 100%; padding: 160px var(--gutter) 64px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 32px; }
-.band-mark { display: block; width: 64px; height: auto; margin-bottom: 24px; }
+.band-mark { display: block; width: 69px; height: auto; margin-bottom: 24px; }
 .band-title { font-size: clamp(3rem, 7vw, 6rem); }
 .band-copy { margin-top: 16px; max-width: 40ch; font-size: 18px; line-height: 1.6; }
 @media (hover: hover) { .band .btn-primary:hover { background: var(--color-ink); color: #fff; } }
@@ -363,7 +374,7 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
   background: var(--color-ink); transition: opacity 0.8s var(--ease-out-3), visibility 0s linear 0.8s;
 }
 .preloader.is-leaving { opacity: 0; visibility: hidden; pointer-events: none; }
-.preloader-mark { position: relative; width: 88px; }
+.preloader-mark { position: relative; width: 95px; }
 .preloader-mark img { display: block; width: 100%; height: auto; }
 .preloader-mark .is-ghost { opacity: 0.15; }
 .preloader-mark .is-fill { position: absolute; inset: 0; clip-path: inset(calc((1 - var(--p)) * 100%) 0 0 0); transition: clip-path 0.3s var(--ease-out-3); }

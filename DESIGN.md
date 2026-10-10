@@ -140,7 +140,7 @@ Four brand colors and one label-only tint, with white alphas doing all the neutr
 
 ### Hierarchy
 - **Display** (500 italic caps, clamp(2.4rem, 6.4vw, 6rem), line-height 0.92, -0.01em): the hero product name, revealed by character. The ghost name behind the walk vial (its own back layer, under the canvas) goes larger (clamp(6rem, 19vw, 18rem), 0.86, -0.02em) as a 1px Light Blue outline at 16%.
-- **Headline** (500 italic caps, clamp(2.6rem, 6vw, 5rem), 0.92): closing section titles. The band title runs to 6rem, the walk product name to 4.4rem, the range title to 4.5rem, menu links at clamp(1.5rem, 2.4vw, 2.25rem).
+- **Headline** (500 italic caps, clamp(2.6rem, 6vw, 5rem), 0.92): closing section titles. The band title runs to 6rem, the walk product name to 4.4rem, the range title to 4.5rem (a fixed 3.4rem on phones, where it is the only copy on the lineup), menu links at clamp(1.5rem, 2.4vw, 2.25rem).
 - **Title** (Poppins 600, 20px, 1.3): How it works step titles. Accordion questions use 500 at clamp(18px, 2vw, 22px).
 - **Body** (Poppins 400, 16px, 1.625): product about (42ch), FAQ answers (70ch), step copy at 15px (38ch). Band copy runs 18px / 1.6.
 - **Label** (Poppins 500 to 600, 13 to 15px, line-height 1): buttons (14px 600), nav links, category meta (15px), chips (13px 500), rail and range links (13px). Numbers are tabular everywhere they count.

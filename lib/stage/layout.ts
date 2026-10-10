@@ -58,3 +58,11 @@ export function nearestSlotForProduct(from: number, product: number, count: numb
 export function productAtPos(pos: number, count: number): number {
   return wrapIndex(Math.round(pos), count);
 }
+
+// How far the camera may slide sideways over the range row before an end vial leaves the frame.
+// Zero when the whole row already fits, as it does on desktop.
+export function rangePanLimit(camZ: number, fovDeg: number, aspect: number, count: number): number {
+  const halfRow = ((count - 1) / 2) * ROW_GAP + 0.9; // half a vial plus a little air past each end
+  const halfView = camZ * Math.tan((fovDeg * Math.PI) / 360) * aspect;
+  return Math.max(0, halfRow - halfView);
+}

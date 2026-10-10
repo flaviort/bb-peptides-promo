@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  ROW_GAP, blendPose, carouselPose, focusPose, nearestSlotForProduct, productAtPos, rowPose, wrapOffset,
+  ROW_GAP, blendPose, carouselPose, focusPose, nearestSlotForProduct, productAtPos, rangePanLimit, rowPose, wrapOffset,
 } from '@/lib/stage/layout';
 import { DEFAULT_VALUES } from '@/lib/stage/values';
 
@@ -45,5 +45,19 @@ describe('poses', () => {
     expect(rowPose(1).x - rowPose(0).x).toBeCloseTo(ROW_GAP);
     expect(ROW_GAP).toBeGreaterThan(1.3); // a vial is 1.3 units wide
     expect(rowPose(1).y).toBeGreaterThan(rowPose(0).y);
+  });
+});
+
+describe('rangePanLimit', () => {
+  it('is zero when the whole row fits, as on desktop', () => {
+    expect(rangePanLimit(26, 30, 16 / 9, 12)).toBe(0);
+  });
+
+  it('lets a portrait phone slide far enough to frame both ends', () => {
+    const limit = rangePanLimit(33.8, 30, 375 / 812, 12);
+    const halfView = 33.8 * Math.tan(Math.PI / 12) * (375 / 812);
+    expect(limit).toBeGreaterThan(0);
+    // Panned to the limit, the view edge reaches just past the outer vial's center.
+    expect(limit + halfView).toBeCloseTo(5.5 * 1.5 + 0.9, 5);
   });
 });

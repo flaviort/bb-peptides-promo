@@ -26,7 +26,7 @@ export class Pager {
       autoRaf: false,
       syncTouch: opts.paging,
       smoothWheel: opts.paging,
-      virtualScroll: (d) => this.intercept(d.deltaY, d.event),
+      virtualScroll: (d) => this.intercept(d.deltaY, d.event, d.deltaX),
     });
     this.lenis.on('scroll', this.onScroll);
     addEventListener('touchend', this.resetSwipe, { passive: true });
@@ -91,11 +91,19 @@ export class Pager {
 
   // Returning false makes Lenis skip the event entirely, including its preventDefault,
   // so every swallowed event is cancelled here or the browser scrolls natively.
-  private intercept(deltaY: number, event: Event): boolean {
+  private intercept(deltaY: number, event: Event, deltaX = 0): boolean {
+    // Lenis runs this hook before its own data-lenis-prevent check, so nested scrollers such as the
+    // menu are let through here, or the cancel below kills their native scroll.
+    if (event.composedPath().some((n) => n instanceof HTMLElement && n.hasAttribute('data-lenis-prevent'))) return true;
     // ctrl+wheel is browser zoom or trackpad pinch: leave it to the browser, as Lenis does.
     if (event instanceof WheelEvent && event.ctrlKey) return true;
     // Sideways trackpad swipes belong to the hero carousel (lib/boot.ts), never to paging.
     if (event instanceof WheelEvent && Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+      if (event.cancelable) event.preventDefault();
+      return false;
+    }
+    // Sideways finger swipes drag the hero carousel or slide the range row (lib/boot.ts), never page.
+    if (event.type.startsWith('touch') && Math.abs(deltaX) > Math.abs(deltaY)) {
       if (event.cancelable) event.preventDefault();
       return false;
     }

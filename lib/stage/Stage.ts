@@ -8,6 +8,7 @@ import { Lights } from './Lights';
 import { GridRoom } from './GridRoom';
 import { createStudioScene } from './Studio';
 import { lightMix } from './walk';
+import { rangePanLimit } from './layout';
 
 export type { Quality };
 
@@ -44,6 +45,9 @@ export class Stage {
   private geo: VialGeometries | null = null;
   private mats: VialMaterials | null = null;
   private lastDragSlots = 0;
+  // Sideways camera slide over the range row on narrow screens: the target the finger sets, and the eased value.
+  private panTarget = 0;
+  private pan = 0;
   private disposed = false;
 
   constructor(private readonly opts: StageOptions) {
@@ -116,6 +120,19 @@ export class Stage {
     this.lastDragSlots = 0;
   }
 
+  /** Slides the camera along the range row by a drag of dxPx, clamped so neither end vial leaves the frame. */
+  panRange(dxPx: number) {
+    const h = this.opts.canvas.clientHeight;
+    if (!h) return;
+    const worldPerPx = (2 * this.values.camZ * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2))) / h;
+    const limit = rangePanLimit(this.values.camZ, this.camera.fov, this.camera.aspect, PRODUCT_COUNT);
+    this.panTarget = Math.min(limit, Math.max(-limit, this.panTarget - dxPx * worldPerPx));
+  }
+
+  resetRangePan() {
+    this.panTarget = 0;
+  }
+
   hitCenter(clientX: number, clientY: number): boolean {
     if (!this.carousel) return false;
     this.aim(clientX, clientY);
@@ -141,6 +158,8 @@ export class Stage {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    const limit = rangePanLimit(this.values.camZ, this.camera.fov, this.camera.aspect, PRODUCT_COUNT);
+    this.panTarget = Math.min(limit, Math.max(-limit, this.panTarget));
   }
 
   render(dt: number) {
@@ -156,7 +175,9 @@ export class Stage {
     s.key = v.key * k;
     s.rim = v.rim * k;
 
-    this.camera.position.set(s.camX, s.camY, s.camZ);
+    // The slide eases toward the finger, and only applies while the row is up.
+    this.pan += (this.panTarget - this.pan) * (1 - Math.exp(-dt * 12));
+    this.camera.position.set(s.camX + this.pan * s.row, s.camY, s.camZ);
     this.camera.rotation.set(s.camRotX, 0, s.camRotZ);
     if (this.camera.fov !== s.fov) {
       this.camera.fov = s.fov;

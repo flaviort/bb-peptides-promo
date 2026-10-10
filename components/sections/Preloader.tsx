@@ -30,8 +30,8 @@ export function Preloader() {
   return (
     <div className={cn('preloader', entered && 'is-leaving')} role="status" aria-live="polite" aria-label={`Loading, ${pct}%`}>
       <div className="preloader-mark" style={{ '--p': loaded } as CSSProperties} aria-hidden="true">
-        <Image className="is-ghost" src="/logos/b-mark-white.svg" alt="" width={88} height={67} priority unoptimized />
-        <Image className="is-fill" src="/logos/b-mark-white.svg" alt="" width={88} height={67} priority unoptimized />
+        <Image className="is-ghost" src="/logos/b-mark-white.svg" alt="" width={95} height={67} priority unoptimized />
+        <Image className="is-fill" src="/logos/b-mark-white.svg" alt="" width={95} height={67} priority unoptimized />
       </div>
       <p className="preloader-count" aria-hidden="true">{String(pct).padStart(2, '0')}%</p>
     </div>

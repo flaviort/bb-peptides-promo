@@ -35,7 +35,7 @@ export function AssessmentBand() {
       <video ref={video} className="band-video" muted loop playsInline preload="none" poster="/video/couple-poster.jpg" aria-hidden="true" />
       <div className="band-inner">
         <div>
-          <Image className="band-mark" src="/logos/b-mark-white.svg" alt="" width={88} height={67} unoptimized />
+          <Image className="band-mark" src="/logos/b-mark-white.svg" alt="" width={95} height={67} unoptimized />
           <h2 id="band-title" className="display band-title">Are peptides for you?</h2>
           <p className="band-copy">Start your assessment today. It is 100% online, and a licensed provider reviews every one.</p>
         </div>

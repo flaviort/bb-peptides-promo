@@ -9,7 +9,8 @@ import { Reveal } from '@/components/ui/Reveal';
 import { cn } from '@/lib/cn';
 
 // Hovering a vial in the row (lib/boot.ts) lifts it and names it here. The links below are the
-// keyboard and touch route to every product page.
+// keyboard route to every product page; phones hide them and tap the vials instead, swiping the row
+// sideways to reach both ends.
 export function RangeLayer() {
   const hover = useApp((s) => s.hover);
   const webgl = useApp((s) => s.webgl);
@@ -31,6 +32,10 @@ export function RangeLayer() {
               </li>
             ))}
           </ul>
+          <div className={cn('hero-hint range-hint', active && 'is-on')}>
+            <span className="hero-hint-line" aria-hidden="true" />
+            Scroll to explore
+          </div>
         </>
       )}
     </Layer>

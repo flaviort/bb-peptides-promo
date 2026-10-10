@@ -159,10 +159,13 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
     const canDrag = () => store.get().entered && store.get().section === 0;
     const inRange = () => store.get().entered && store.get().section === RANGE;
     // Range row: open a product on release, and only for a tap, so a swipe that starts on a vial scrolls.
+    // A sideways drag slides the camera along the row on phones, where the row is wider than the screen.
     let rangeDown: Point | null = null;
+    let rangeLastX = 0;
     const down = (e: PointerEvent) => {
       if (inRange()) {
         rangeDown = { x: e.clientX, y: e.clientY };
+        rangeLastX = e.clientX;
         return;
       }
       if (!canDrag()) return;
@@ -182,6 +185,11 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
         st.drag(dx);
         return;
       }
+      if (rangeDown && inRange()) {
+        const dx = e.clientX - rangeLastX;
+        rangeLastX = e.clientX;
+        if (Math.abs(e.clientX - rangeDown.x) > Math.abs(e.clientY - rangeDown.y)) st.panRange(dx);
+      }
       if (inRange()) {
         const hit = st.hitProduct(e.clientX, e.clientY);
         st.setHover(hit);
@@ -197,6 +205,11 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
         rangeDown = null;
         const hit = tap ? st.hitProduct(e.clientX, e.clientY) : null;
         if (hit !== null) window.open(productUrl(PRODUCTS[hit]), '_blank', 'noreferrer');
+        // A finger has no hover: drop the name a swipe left lit under it.
+        if (e.pointerType === 'touch') {
+          st.setHover(null);
+          store.set({ hover: null });
+        }
         return;
       }
       if (!dragging) return;
@@ -257,6 +270,7 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
     if (s.product !== p.product && s.productSource === 'ui') stage?.setProduct(s.product);
     if (s.section !== p.section && p.section === RANGE) {
       stage?.setHover(null);
+      stage?.resetRangePan();
       if (s.hover !== null) store.set({ hover: null });
     }
     if (s.entered && !p.entered) enter();
