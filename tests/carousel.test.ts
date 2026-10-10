@@ -66,6 +66,12 @@ describe('label swaps during the walk', () => {
     expect(center.labelIndex).toBe(10);
   });
 
+  it('shows the right product when the very first frame is already deep in the walk (a deep link)', () => {
+    const { c, center } = setup(false);
+    c.update(1 / 60, valuesAt(4), { mx: 0, my: 0 });
+    expect(center.labelIndex).toBe(4);
+  });
+
   it('leaves vials that are not in focus on their own label', () => {
     const { c, models } = setup(false);
     run(c, -1, 7, 0.05);

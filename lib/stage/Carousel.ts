@@ -56,7 +56,8 @@ export class Carousel {
     const n = this.models.length;
     const reduced = this.opts.reduced;
     // A frame that crosses a half turn swaps at once, so even a coarse frame lands on the right label.
-    const crossed = this.prevWalk !== null && Math.round(this.prevWalk) !== Math.round(v.walk);
+    // The first frame has shown nothing yet, so it may set any label (a deep link straight into the walk).
+    const crossed = this.prevWalk === null || Math.round(this.prevWalk) !== Math.round(v.walk);
     this.prevWalk = v.walk;
 
     let best = Infinity;

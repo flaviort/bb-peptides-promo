@@ -9,3 +9,8 @@ export function setPager(p: Pager | null) {
 export function goToSection(index: number) {
   pager?.goTo(index);
 }
+
+export function scrollToId(id: string) {
+  const el = document.getElementById(id);
+  if (el) pager?.scrollToElement(el);
+}

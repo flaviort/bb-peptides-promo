@@ -1,13 +1,18 @@
+import { Backdrop } from '@/components/Backdrop';
 import { Experience } from '@/components/Experience';
+import { Frame } from '@/components/chrome/Frame';
 import { MainShell } from '@/components/chrome/MainShell';
+import { Nav } from '@/components/chrome/Nav';
 import { Preloader } from '@/components/sections/Preloader';
 import { SECTIONS } from '@/lib/scroll/sections';
 
 export default function Page() {
   return (
     <>
-      <div className="backdrop" aria-hidden="true" />
+      <Backdrop />
       <Experience />
+      <Frame />
+      <Nav />
       <MainShell>
         {SECTIONS.map((id) => (
           <div key={id} id={id} data-section={id} aria-hidden="true" className={id === 'range' ? 'spacer spacer--short' : 'spacer'} />

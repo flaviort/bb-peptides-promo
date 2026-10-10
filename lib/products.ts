@@ -119,3 +119,11 @@ export function wrapIndex(i: number, n: number = PRODUCT_COUNT): number {
 }
 
 export const pad2 = (n: number): string => String(n).padStart(2, '0');
+
+export function productGroups(): { category: CategorySlug; name: string; items: { product: Product; index: number }[] }[] {
+  return CATEGORY_ORDER.map((category) => ({
+    category,
+    name: CATEGORIES[category].name,
+    items: PRODUCTS.map((product, index) => ({ product, index })).filter((x) => x.product.category === category),
+  }));
+}
