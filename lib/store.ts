@@ -35,6 +35,8 @@ export interface AppState {
   entered: boolean;
   menuOpen: boolean;
   webgl: boolean;
+  /** A phone held sideways: the rotate notice covers the page and the stage pauses. */
+  rotated: boolean;
 }
 
 export const store = createStore<AppState>({
@@ -47,6 +49,7 @@ export const store = createStore<AppState>({
   entered: false,
   menuOpen: false,
   webgl: true,
+  rotated: false,
 });
 
 export function useApp<K>(select: (s: AppState) => K): K {

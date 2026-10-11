@@ -30,3 +30,8 @@ All five were built on 2026-10-10 and checked at 375x667 and 390x844 (headless C
 4. The lineup's grid and scan glow now pass behind the vials (depth test plus a stencil silhouette of the glass).
 5. The lineup swells like a wave: around the cursor on desktop, around the middle of the view on phones.
 6. The menu toggle was a 14px target on phones; once the menu scrolled, taps beside it landed on menu links. Its hit area is now 48px wide.
+
+# Third batch (2026-10-11)
+
+1. The walk vial no longer moves between products on phones. The panel is a fixed 370px box (it fits the tallest, Tesamorelin / Ipamorelin on a 360px-wide phone): name and category hold the top, the description drops to the bottom with `margin-top: auto`, and the vial is placed once from the box's top.
+2. Phones held sideways get a rotate notice (`components/chrome/RotateNotice.tsx`): TV static, scanlines with a rolling band, a phone icon that tilts upright, and "Turn your phone upright". Scrolling pauses and the stage stops rendering until the phone is upright again. Short desktop windows are not affected (the query needs a coarse pointer).

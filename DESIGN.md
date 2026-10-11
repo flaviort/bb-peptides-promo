@@ -210,6 +210,8 @@ A 5 mL serum vial: reflection-only glass (additive blending, clearcoat, faint bl
 
 **Grid room** (`lib/stage/GridRoom.ts`): the full lineup's backdrop, after React Bits' Grid Scan. One full-screen quad drawn behind the vials casts a ray per pixel into a box room (half width 1.7, half height 1) gridded in Light Blue at 32%, fogged with depth. An Electric Blue scan band with a white core sweeps down the room's length in 3.2s every 5s, leaving a short trail on the lines, and the room tilts a few degrees toward the pointer. It fades in with the row and out as the camera drops into the closing page; with reduced motion the sweep stands still. It sits on the far plane and skips every pixel a vial covers (depth for the label and cap, a stencil silhouette for the glass), so the lines and the scan pass behind the products.
 
+**Rotate notice** (`components/chrome/RotateNotice.tsx`): a phone held sideways sees TV static (a 160x90 canvas of Light Blue tinted grey, scaled up pixelated, about 24fps), scanlines with a rolling band, and a white phone outline that tilts upright beside a Light Blue quarter-turn arrow, over "Turn your phone upright" in the display face. The page beneath pauses. Reduced motion holds one still frame.
+
 **Lineup magnifier** (`rowMagnify` in `lib/stage/layout.ts`): the row swells like a wave around a focus point, up to 1.3x at the peak and back to rest about three vials out, while the neighbours step aside. On desktop the focus follows the cursor; on touch screens it is the middle of the view, which a sideways swipe slides along the row.
 
 ## Do's and Don'ts

@@ -295,9 +295,12 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
   .product-rail { display: none; }
   .product-ghost { top: 24%; }
   .product-stack { left: 20px; right: 20px; top: auto; bottom: 24px; width: auto; transform: none; }
-  /* The outgoing panel stays in the stack while it leaves; pin the new one to the bottom so the
-     button lands on the same spot for every product, however long its description. */
-  .product-stack > * { align-self: end; }
+  /* A fixed box: the name and category hold its top edge and the rest drops to its bottom edge, so the
+     vial above (placed from the box's top in lib/boot.ts) and the button below never move between
+     products. 370px fits the tallest panel (Tesamorelin / Ipamorelin on a 360px-wide phone). */
+  .product-stack { height: 370px; }
+  .product-panel { height: 100%; }
+  .product-about { margin-top: auto; }
   .product-count {
     position: absolute; right: 20px; top: 34%; display: flex; flex-direction: column; align-items: center; gap: 10px;
     font-size: 12px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums;
@@ -392,7 +395,32 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 .preloader-mark .is-fill { position: absolute; inset: 0; clip-path: inset(calc((1 - var(--p)) * 100%) 0 0 0); transition: clip-path 0.3s var(--ease-out-3); }
 .preloader-count { font-size: 13px; font-weight: 500; letter-spacing: 0.2em; color: var(--muted); font-variant-numeric: tabular-nums; }
 
+/* Rotate notice: a phone held sideways gets TV static and a request to turn it upright. */
+.rotate { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; overflow: hidden; background: var(--color-ink); }
+.rotate-noise { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; opacity: 0.32; }
+/* Scanlines, plus a brighter band rolling down like a TV losing vertical hold. */
+.rotate-scan {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, transparent 0%, rgb(137 181 252 / 0.1) 45%, rgb(137 181 252 / 0.16) 50%, transparent 56%) 0 0 / 100% 220% no-repeat,
+    repeating-linear-gradient(180deg, rgb(17 17 17 / 0.55) 0 1px, transparent 1px 3px);
+  animation: roll 3.4s linear infinite;
+}
+@keyframes roll { from { background-position: 0 120%, 0 0; } to { background-position: 0 -120%, 0 0; } }
+.rotate-copy {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 32px 48px; text-align: center;
+  background: radial-gradient(closest-side, rgb(17 17 17 / 0.92), rgb(17 17 17 / 0.75) 60%, transparent);
+}
+.rotate-icon { width: 88px; height: 88px; overflow: visible; }
+.rotate-phone { transform-box: view-box; transform-origin: 32px 31px; animation: upright 2.8s var(--ease-in-out-3) infinite; }
+.rotate-arrow { animation: nudge 2.8s var(--ease-in-out-3) infinite; }
+@keyframes upright { 0%, 18% { transform: rotate(-90deg); } 50%, 82% { transform: rotate(0deg); } 100% { transform: rotate(-90deg); } }
+@keyframes nudge { 0%, 18% { opacity: 1; } 40%, 90% { opacity: 0.45; } 100% { opacity: 1; } }
+.rotate-title { font-size: 2.2rem; }
+.rotate-line { font-size: 14px; color: var(--muted); }
+
 @media (prefers-reduced-motion: reduce) {
+  .rotate-scan, .rotate-phone, .rotate-arrow { animation: none; }
   .hero-hint-line::after { animation: none; }
   .roll .ch { transition: none; }
   .fade { transform: none; transition: opacity 0.3s; }

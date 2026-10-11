@@ -8,6 +8,7 @@ import { MainShell } from '@/components/chrome/MainShell';
 import { ClosingSection } from '@/components/sections/ClosingSection';
 import { Nav } from '@/components/chrome/Nav';
 import { Preloader } from '@/components/sections/Preloader';
+import { RotateNotice } from '@/components/chrome/RotateNotice';
 import { SECTIONS } from '@/lib/scroll/sections';
 import { structuredData } from '@/lib/structured-data';
 
@@ -35,6 +36,7 @@ export default function Page() {
         )}
       </MainShell>
       <Preloader />
+      <RotateNotice />
     </>
   );
 }

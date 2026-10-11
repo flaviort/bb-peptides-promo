@@ -117,19 +117,16 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
   });
   pager.lenis.on('scroll', ScrollTrigger.update);
 
-  // Phones stack the product panel under the walk vial: pin the vial's base half a line below the top
-  // of the product name, so the name always overlaps it a little whatever the panel's height.
+  // Phones stack the product panel, a fixed-height box, under the walk vial: pin the vial's base a little
+  // below the box's top edge, where the product name starts, so the name overlaps it the same for every product.
   const placeWalkVial = () => {
     if (!stage) return;
     if (!mobileQuery.matches) return stage.setWalkBase(null);
     const stack = document.querySelector<HTMLElement>('.product-stack');
-    const panel = stack?.lastElementChild as HTMLElement | null | undefined;
-    const name = panel?.querySelector<HTMLElement>('.product-name');
-    if (!stack || !panel || !name) return;
-    stage.setWalkBase(stack.getBoundingClientRect().bottom - panel.offsetHeight + name.offsetHeight * 0.5);
+    if (stack) stage.setWalkBase(stack.getBoundingClientRect().top + 20);
   };
   let placeFrame = 0;
-  // After React has rendered the new panel.
+  // After React has laid out the panel.
   const placeSoon = () => {
     cancelAnimationFrame(placeFrame);
     placeFrame = requestAnimationFrame(() => (placeFrame = requestAnimationFrame(placeWalkVial)));
@@ -165,6 +162,8 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
     canvas.classList.toggle('is-off', off);
     // The dust belongs to the stage: it fades as soon as the page leaves the lineup for the reading sections.
     const st = store.get();
+    // Under the rotate notice nothing shows: skip both canvases.
+    if (st.rotated) return;
     dust.render(Math.min(deltaMs, 100) / 1000, st.entered && st.section < CLOSING);
     if (!stage || off) return;
     stage.render(Math.min(deltaMs, 100) / 1000);
@@ -273,7 +272,7 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
   // Store reactions
   let prev = store.get();
   const enter = () => {
-    pager.start();
+    if (!store.get().rotated) pager.start();
     if (stage) {
       if (debug.skipIntro || reduced) stage.intro = 1;
       else gsap.to(stage, { intro: 1, duration: 2.4, ease: 'power3.out' });
@@ -292,7 +291,12 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
     const p = prev;
     prev = s;
     if (s.product !== p.product && s.productSource === 'ui') stage?.setProduct(s.product);
-    if (s.product !== p.product || (s.entered && !p.entered)) placeSoon();
+    if (s.entered && !p.entered) placeSoon();
+    // Held sideways, the page sits still under the rotate notice; upright again, it carries on.
+    if (s.rotated !== p.rotated && s.entered) {
+      if (s.rotated) pager.stop();
+      else pager.start();
+    }
     if (s.section !== p.section && p.section === RANGE) {
       stage?.setHover(null);
       stage?.resetRangePan();
