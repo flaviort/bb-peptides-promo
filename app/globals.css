@@ -167,7 +167,14 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 .nav::before { content: ""; position: absolute; inset: 0; z-index: -1; background: rgb(17 17 17 / 0.94); border-bottom: 1px solid var(--hair); opacity: 0; transition: opacity 0.4s var(--ease-out-3); }
 .nav.is-solid::before { opacity: 1; }
 .nav > * { pointer-events: auto; }
-.nav-logo { justify-self: center; display: block; width: clamp(132px, 14vw, 200px); }
+.nav-logo { position: relative; z-index: 3; justify-self: center; display: block; width: clamp(132px, 14vw, 200px); }
+/* With the menu open, the logo and toggle stay on top of the panel, over an Ink strip so the list
+   scrolls under the nav row instead of through it. */
+.nav::after {
+  content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: var(--color-ink);
+  opacity: 0; transition: opacity 0.3s var(--ease-out-3);
+}
+.nav.is-menu::after { opacity: 1; transition-delay: 0.25s; }
 .nav-logo img { display: block; width: 100%; height: auto; }
 .nav-right { justify-self: end; display: flex; align-items: center; gap: 24px; }
 .nav-link { min-height: 44px; font-size: 14px; font-weight: 500; color: var(--muted); transition: color 0.2s; }
@@ -180,7 +187,7 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
 }
 
 /* Menu */
-.menu-toggle { position: relative; z-index: 2; justify-self: start; display: inline-flex; align-items: center; gap: 12px; min-height: 48px; font-size: 14px; font-weight: 500; }
+.menu-toggle { position: relative; z-index: 3; justify-self: start; display: inline-flex; align-items: center; gap: 12px; min-height: 48px; font-size: 14px; font-weight: 500; }
 /* On phones the label is screen-reader only, so the icon alone would be a 14px target: widen the hit area, not the icon. */
 @media (max-width: 640px) { .menu-toggle { min-width: 48px; margin-left: -14px; padding-left: 14px; } }
 .menu-squares { display: grid; grid-template-columns: repeat(2, 5px); gap: 4px; }

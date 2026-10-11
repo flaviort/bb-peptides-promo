@@ -66,6 +66,7 @@ Start here in the next session. This covers where the build stands, what is stil
 ## Traps from last session
 
 - **Builds break the dev server.** Running `npm run build` while `npm run dev` is up replaces the dev cache, and the dev server then serves stale CSS. Restart the dev server after any build.
+- **`next build` can ship stale CSS.** On 2026-10-11 a rebuild kept an old `globals.css` chunk (same hash, new rules missing). If a CSS change does not show, `rm -rf .next` and build again, and grep the built chunk for the new rule.
 - **The hidden browser pane pauses animation frames,** so Lenis and the walk do not advance there. Check scroll behaviour with `node scripts/verify-paging.mjs` (headless Chrome against the dev server on :3000), and screenshots with `npm run shoot` (headless Chrome against a `NEXT_PUBLIC_DEBUG=1` build on :3100, output in `qa/shots/`, which is gitignored).
 - **Screenshots can show a stale frame.** A screenshot taken right after a navigation may show a frame from before the stage reported the product. Read the DOM, or wait and screenshot again, before treating it as a bug.
 - **Edit CSS with exact, unique anchors.** A text replace that matched `.pool--range {` twice corrupted the floor-light rules once.
