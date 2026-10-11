@@ -302,12 +302,11 @@ body.is-grabbing, body.is-grabbing * { cursor: grabbing !important; }
   .product-rail { display: none; }
   .product-ghost { top: 24%; }
   .product-stack { left: 20px; right: 20px; top: auto; bottom: 24px; width: auto; transform: none; }
-  /* A fixed box: the name and category hold its top edge and the rest drops to its bottom edge, so the
-     vial above (placed from the box's top in lib/boot.ts) and the button below never move between
-     products. 370px fits the tallest panel (Tesamorelin / Ipamorelin on a 360px-wide phone). */
+  /* A fixed box with everything stacked at its bottom: the vial above is placed from the box's top
+     (lib/boot.ts), so it never moves between products, and the button holds the bottom edge.
+     370px fits the tallest panel (Tesamorelin / Ipamorelin on a 360px-wide phone). */
   .product-stack { height: 370px; }
-  .product-panel { height: 100%; }
-  .product-about { margin-top: auto; }
+  .product-panel { height: 100%; justify-content: flex-end; }
   .product-count {
     position: absolute; right: 20px; top: 34%; display: flex; flex-direction: column; align-items: center; gap: 10px;
     font-size: 12px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums;
