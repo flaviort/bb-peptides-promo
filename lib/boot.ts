@@ -146,8 +146,14 @@ export async function boot(canvas: HTMLCanvasElement, dustCanvas: HTMLCanvasElem
     onResize();
   };
   addEventListener('resize', onResize);
+  // iOS fires resize mid-rotation, before layout has the final size, and may not fire again: the
+  // stage then keeps a stale buffer and aspect, squeezing the vials. The canvas covers the viewport,
+  // so its own box settling is the reliable signal to measure again.
+  const settled = new ResizeObserver(() => onResize());
+  settled.observe(canvas);
   mobileQuery.addEventListener('change', onBreakpoint);
   cleanups.push(() => {
+    settled.disconnect();
     removeEventListener('resize', onResize);
     mobileQuery.removeEventListener('change', onBreakpoint);
     cancelAnimationFrame(placeFrame);
